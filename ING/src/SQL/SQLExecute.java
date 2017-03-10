@@ -48,8 +48,9 @@ public class SQLExecute {
 	 * @return The ResultSet for the query
 	 * @throws SQLException
 	 *             If Query syntax is incorrect.
+	 * @throws InvalidParameterTypeException 
 	 */
-	public static ResultSet execute(String query, String[] parameters) throws SQLException {
+	public static ResultSet execute(String query, Object[] parameters) throws SQLException, InvalidParameterTypeException {
 		if (con == null) {
 			try {
 				getConnection();
@@ -60,7 +61,15 @@ public class SQLExecute {
 
 		PreparedStatement prep = con.prepareStatement(query);
 		for (int i = 0; i < parameters.length; i++) {
-			prep.setString(i + 1, parameters[i]);
+			if (parameters[i] instanceof Integer) {
+				prep.setInt(i + 1, (int) parameters[i]);
+			} else if (parameters[i] instanceof Long) {
+				prep.setLong(i + 1, (long) parameters[i]);
+			} else if (parameters[i] instanceof String) {
+				prep.setString(i + 1, (String)parameters[i]);
+			} else {
+				throw new InvalidParameterTypeException();
+			}
 		}
 		ResultSet res = prep.executeQuery();
 
