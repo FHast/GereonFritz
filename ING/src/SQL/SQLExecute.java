@@ -48,9 +48,10 @@ public class SQLExecute {
 	 * @return The ResultSet for the query
 	 * @throws SQLException
 	 *             If Query syntax is incorrect.
-	 * @throws InvalidParameterTypeException 
+	 * @throws InvalidParameterTypeException
 	 */
-	public static ResultSet execute(String query, Object[] parameters) throws SQLException, InvalidParameterTypeException {
+	public static ResultSet execute(String query, Object[] parameters)
+			throws SQLException, InvalidParameterTypeException {
 		if (con == null) {
 			try {
 				getConnection();
@@ -66,7 +67,7 @@ public class SQLExecute {
 			} else if (parameters[i] instanceof Long) {
 				prep.setLong(i + 1, (long) parameters[i]);
 			} else if (parameters[i] instanceof String) {
-				prep.setString(i + 1, (String)parameters[i]);
+				prep.setString(i + 1, (String) parameters[i]);
 			} else {
 				throw new InvalidParameterTypeException();
 			}
@@ -76,6 +77,14 @@ public class SQLExecute {
 		return res;
 	}
 
+	/**
+	 * Prints the ResultSet given in a readable form to standard output
+	 * (console).
+	 * 
+	 * @param resultSet
+	 *            the ResultSet which should be printed.
+	 * @throws SQLException
+	 */
 	public static void printResultSet(ResultSet resultSet) throws SQLException {
 		ResultSetMetaData rsmd = resultSet.getMetaData();
 		int columnsNumber = rsmd.getColumnCount();
@@ -90,12 +99,23 @@ public class SQLExecute {
 		}
 	}
 
+	/**
+	 * Setup for connection to the database, called if connection is not yet
+	 * established.
+	 * 
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	private static void getConnection() throws ClassNotFoundException, SQLException {
 		Class.forName("org.sqlite.JDBC");
 		con = DriverManager.getConnection("jdbc:sqlite:Userdata.db");
 		initialize();
 	}
 
+	/**
+	 * If the database is not correctly set up, all tables are dropped and
+	 * re-created using the createDatabase.sql script.
+	 */
 	private static void initialize() {
 		if (!hasData) {
 			hasData = true;
