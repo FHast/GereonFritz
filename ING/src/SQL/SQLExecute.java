@@ -23,7 +23,7 @@ public class SQLExecute {
 	 * @throws SQLException
 	 *             If the SQLite Query is incorrect.
 	 */
-	public static ResultSet execute(String query) throws SQLException {
+	public static ResultSet executeQuery(String query) throws SQLException {
 		if (con == null) {
 			try {
 				getConnection();
@@ -36,6 +36,19 @@ public class SQLExecute {
 		ResultSet res = state.executeQuery(query);
 
 		return res;
+	}
+	
+	public static void execute(String query) throws SQLException {
+		if (con == null) {
+			try {
+				getConnection();
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		Statement state = con.createStatement();
+		state.execute(query);
 	}
 
 	/**
@@ -50,7 +63,7 @@ public class SQLExecute {
 	 *             If Query syntax is incorrect.
 	 * @throws InvalidParameterTypeException
 	 */
-	public static ResultSet execute(String query, Object[] parameters)
+	public static ResultSet executeQuery(String query, Object[] parameters)
 			throws SQLException, InvalidParameterTypeException {
 		if (con == null) {
 			try {
@@ -68,13 +81,42 @@ public class SQLExecute {
 				prep.setLong(i + 1, (long) parameters[i]);
 			} else if (parameters[i] instanceof String) {
 				prep.setString(i + 1, (String) parameters[i]);
+			} else if (parameters[i] == null) {
+				// do nothing
 			} else {
-				throw new InvalidParameterTypeException();
+				throw new InvalidParameterTypeException(parameters[i].getClass().getName());
 			}
 		}
 		ResultSet res = prep.executeQuery();
 
 		return res;
+	}
+	
+	public static void execute(String query, Object[] parameters)
+			throws SQLException, InvalidParameterTypeException {
+		if (con == null) {
+			try {
+				getConnection();
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		PreparedStatement prep = con.prepareStatement(query);
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i] instanceof Integer) {
+				prep.setInt(i + 1, (int) parameters[i]);
+			} else if (parameters[i] instanceof Long) {
+				prep.setLong(i + 1, (long) parameters[i]);
+			} else if (parameters[i] instanceof String) {
+				prep.setString(i + 1, (String) parameters[i]);
+			} else if (parameters[i] == null) {
+				// do nothing
+			} else {
+				throw new InvalidParameterTypeException(parameters[i].getClass().getName());
+			}
+		}
+		prep.execute();
 	}
 
 	/**
