@@ -32,4 +32,14 @@ CREATE TABLE "PinCards" (
 	`PIN`	INTEGER NOT NULL,
 	`AccessPermissionID`	INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY(`AccessPermissionID`) REFERENCES AccessPermissions ( AccessPermissionID )
+);
+DROP TABLE IF EXISTS "Transactions";
+CREATE TABLE `Transactions` (
+	`TransactionID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`Amount`	REAL NOT NULL,
+	`Usage`	TEXT,
+	`TransactionTime`	NUMERIC NOT NULL,
+	`ReceiverName`	TEXT,
+	`SenderID`	INTEGER NOT NULL,
+	`ReceiverID`	INTEGER NOT NULL
 )

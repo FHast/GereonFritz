@@ -9,6 +9,9 @@ import Services.CustomerService;
 import Services.InvalidParameterException;
 
 public class SQLdatabaseFillService {
+	
+	public static final String SOURCEPATH = "src/SQL/";
+	
 	public static final void main(String[] args) {
 		fillCustomerAccounts();
 	}
@@ -25,7 +28,7 @@ public class SQLdatabaseFillService {
 
 		// Fill Arrays
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("src/SQL/randomNames"));
+			BufferedReader reader = new BufferedReader(new FileReader(SOURCEPATH + "randomNames"));
 			int i = 0;
 			while (reader.ready()) {
 				String fullname = reader.readLine();
@@ -35,7 +38,7 @@ public class SQLdatabaseFillService {
 			}
 			reader.close();
 
-			reader = new BufferedReader(new FileReader("src/SQL/randomAddress"));
+			reader = new BufferedReader(new FileReader(SOURCEPATH + "randomAddress"));
 			i = 0;
 			while (reader.ready()) {
 				address[i] = reader.readLine();
@@ -43,7 +46,7 @@ public class SQLdatabaseFillService {
 			}
 			reader.close();
 
-			reader = new BufferedReader(new FileReader("src/SQL/randomEmail"));
+			reader = new BufferedReader(new FileReader(SOURCEPATH + "randomEmail"));
 			i = 0;
 			while (reader.ready()) {
 				email[i] = reader.readLine();
@@ -63,6 +66,7 @@ public class SQLdatabaseFillService {
 			}
 
 		} catch (FileNotFoundException e) {
+			System.err.println("Sourcepath '" + SOURCEPATH + "' seems invalid. ");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

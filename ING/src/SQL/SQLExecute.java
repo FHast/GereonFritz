@@ -140,6 +140,16 @@ public class SQLExecute {
 			System.out.println("");
 		}
 	}
+	
+	public static void main(String[] args) {
+		try {
+			getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Setup for connection to the database, called if connection is not yet
@@ -166,7 +176,7 @@ public class SQLExecute {
 			try {
 				state = con.createStatement();
 				ResultSet res = state
-						.executeQuery("SELECT name FROM sqlite_master WHERE type ='table' AND name='PinCards'");
+						.executeQuery("SELECT name FROM sqlite_master WHERE type ='table' AND name='Transactions'");
 
 				if (!res.next()) {
 					System.out.println("Creating database tables...");
@@ -174,6 +184,7 @@ public class SQLExecute {
 						state = con.createStatement();
 						state.execute(s);
 					}
+					SQLdatabaseFillService.main(null);
 					System.out.println("Creation finished.");
 				}
 			} catch (SQLException e) {
