@@ -110,6 +110,8 @@ public class SQLExecute {
 				prep.setLong(i + 1, (long) parameters[i]);
 			} else if (parameters[i] instanceof String) {
 				prep.setString(i + 1, (String) parameters[i]);
+			} else if (parameters[i] instanceof Double) {
+				prep.setDouble(i + 1, (double) parameters[i]);
 			} else if (parameters[i] == null) {
 				// do nothing
 			} else {

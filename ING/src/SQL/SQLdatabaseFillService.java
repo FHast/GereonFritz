@@ -5,15 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import Services.BankAccountService;
 import Services.CustomerService;
 import Services.InvalidParameterException;
 
 public class SQLdatabaseFillService {
-	
+
 	public static final String SOURCEPATH = "src/SQL/";
-	
+
 	public static final void main(String[] args) {
 		fillCustomerAccounts();
+		fillBankAccounts();
 	}
 
 	public static void fillCustomerAccounts() {
@@ -75,10 +77,20 @@ public class SQLdatabaseFillService {
 		}
 
 	}
-	
+
 	public static void fillBankAccounts() {
 		for (int i = 0; i < 100; i++) {
-			
+			int mainCustomer = (int) (Math.random() * 50) + 1;
+			int startsaldo = (int) (Math.random() * 10000 );
+			try {
+				BankAccountService.addBankAccount(mainCustomer, startsaldo);
+			} catch (InvalidParameterException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	public static void fillAccessPermissions() {
+		
 	}
 }
