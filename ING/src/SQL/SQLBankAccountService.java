@@ -3,6 +3,9 @@ package SQL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import Services.AccessPermissionService;
+import Services.InvalidParameterException;
+
 public class SQLBankAccountService {
 
 	public static final String COUNTRY = "NL";
@@ -39,14 +42,16 @@ public class SQLBankAccountService {
 			
 			SQLExecute.execute("INSERT INTO BankAccounts VALUES(?,?,?,?)",
 					new Object[] { bankAccountNumber, startsaldo, mainCustomer, IBAN });
+			AccessPermissionService.addPermission(mainCustomer, IBAN);
 			return true;
 
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
-			return false;
 		} catch (SQLException e) {
+			e.printStackTrace();	
+		} catch (InvalidParameterException e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 }

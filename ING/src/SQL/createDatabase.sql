@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS "AccessPermissions";
-CREATE TABLE "AccessPermissions" (
-	`AccessPermissionID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`CustomerID`	INTEGER NOT NULL,
-	`BankAccountID`	INTEGER NOT NULL,
-	FOREIGN KEY(`CustomerID`) REFERENCES CustomerAccounts ( CustomerAccountID ),
-	FOREIGN KEY(`BankAccountID`) REFERENCES BankAccounts ( BankAccountID ) 
+CREATE TABLE "AccessPermissions" ( 
+	`CustomerID` INTEGER NOT NULL, 
+	`BankAccountID` INTEGER NOT NULL, 
+	PRIMARY KEY(`CustomerID`,`BankAccountID`), 
+	FOREIGN KEY(`CustomerID`) REFERENCES `CustomerAccounts`(`CustomerAccountID`), 
+	FOREIGN KEY(`BankAccountID`) REFERENCES `BankAccounts`(`BankAccountID`) 
 );
 DROP TABLE IF EXISTS "BankAccounts";
 CREATE TABLE "BankAccounts" ( 
