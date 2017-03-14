@@ -7,11 +7,11 @@ CREATE TABLE "AccessPermissions" (
 	FOREIGN KEY(`BankAccountID`) REFERENCES BankAccounts ( BankAccountID ) 
 );
 DROP TABLE IF EXISTS "BankAccounts";
-CREATE TABLE "BankAccounts" (
-	`BankAccountID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`Saldo`	REAL,
-	`MainCustomerID`	INTEGER NOT NULL,
-	FOREIGN KEY(`MainCustomerID`) REFERENCES CustomerAccounts ( CustomerAccountID )
+CREATE TABLE "BankAccounts" ( 
+	`BankAccountID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 
+	`Saldo` REAL, `MainCustomerID` INTEGER NOT NULL, 
+	`IBAN` TEXT NOT NULL UNIQUE, 
+	FOREIGN KEY(`MainCustomerID`) REFERENCES `CustomerAccounts`(`CustomerAccountID`) 
 );
 DROP TABLE IF EXISTS "CustomerAccounts";
 CREATE TABLE "CustomerAccounts" (
@@ -40,6 +40,6 @@ CREATE TABLE `Transactions` (
 	`Usage`	TEXT,
 	`TransactionTime`	NUMERIC NOT NULL,
 	`ReceiverName`	TEXT,
-	`SenderID`	INTEGER NOT NULL,
-	`ReceiverID`	INTEGER NOT NULL
+	`SenderIBAN`	TEXT NOT NULL,
+	`ReceiverIBAN`	TEXT NOT NULL
 )
