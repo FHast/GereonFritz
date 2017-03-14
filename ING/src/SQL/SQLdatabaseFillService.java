@@ -75,4 +75,10 @@ public class SQLdatabaseFillService {
 		}
 
 	}
+	
+	public static void fillBankAccounts() {
+		for (int i = 0; i < 100; i++) {
+			
+		}
+	}
 }
