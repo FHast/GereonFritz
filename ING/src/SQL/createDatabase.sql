@@ -26,12 +26,13 @@ CREATE TABLE "CustomerAccounts" (
 	`Email`	TEXT NOT NULL UNIQUE
 );
 DROP TABLE IF EXISTS "PinCards";
-CREATE TABLE "PinCards" (
-	`PinCardID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`ExpirationDate`	NUMERIC NOT NULL,
-	`PIN`	INTEGER NOT NULL,
-	`AccessPermissionID`	INTEGER NOT NULL UNIQUE,
-	FOREIGN KEY(`AccessPermissionID`) REFERENCES AccessPermissions ( AccessPermissionID )
+CREATE TABLE "PinCards" ( 
+	`PinCardID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 
+	`ExpirationDate` NUMERIC NOT NULL, 
+	`PIN` TEXT NOT NULL, 
+	`CustomerID` INTEGER NOT NULL, `BankAccountID` INTEGER NOT NULL, 
+	FOREIGN KEY(`CustomerID`) REFERENCES `CustomerAccounts`(`CustomerAccountID`), 
+	FOREIGN KEY(`BankAccountID`) REFERENCES BankAccounts(BankAccountID) 
 );
 DROP TABLE IF EXISTS "Transactions";
 CREATE TABLE `Transactions` (

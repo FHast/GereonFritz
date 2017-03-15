@@ -12,6 +12,7 @@ public class SQLAccessPermissionService {
 				return false;
 			}
 			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, bankacc.getInt(1) });
+			SQLPinCardService.addPinCard(customerID, IBAN);
 			return true;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
