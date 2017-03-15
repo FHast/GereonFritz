@@ -3,6 +3,9 @@ package SQL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import Services.InvalidParameterException;
+import Services.PinCardService;
+
 public class SQLAccessPermissionService {
 	public static boolean addPermission(int customerID, String IBAN) {
 		try {
@@ -12,11 +15,13 @@ public class SQLAccessPermissionService {
 				return false;
 			}
 			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, bankacc.getInt(1) });
-			SQLPinCardService.addPinCard(customerID, IBAN);
+			PinCardService.addPinCard(customerID, IBAN);
 			return true;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
 		return false;
