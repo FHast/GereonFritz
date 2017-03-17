@@ -37,7 +37,7 @@ public class SQLExecute {
 
 		return res;
 	}
-	
+
 	public static void execute(String query) throws SQLException {
 		if (con == null) {
 			try {
@@ -91,9 +91,8 @@ public class SQLExecute {
 
 		return res;
 	}
-	
-	public static void execute(String query, Object[] parameters)
-			throws SQLException, InvalidParameterTypeException {
+
+	public static void execute(String query, Object[] parameters) throws SQLException, InvalidParameterTypeException {
 		if (con == null) {
 			try {
 				getConnection();
@@ -142,7 +141,7 @@ public class SQLExecute {
 			System.out.println("");
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			getConnection();
@@ -163,6 +162,7 @@ public class SQLExecute {
 	private static void getConnection() throws ClassNotFoundException, SQLException {
 		Class.forName("org.sqlite.JDBC");
 		con = DriverManager.getConnection("jdbc:sqlite:Userdata.db");
+		SQLExecute.execute("PRAGMA foreign_keys = ON");
 		initialize();
 	}
 

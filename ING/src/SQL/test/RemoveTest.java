@@ -13,6 +13,6 @@ public class RemoveTest {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		SQLCustomerService.removeCustomer(1);
+		SQLCustomerService.removeCustomer(2);
 	}
 }
