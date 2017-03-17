@@ -38,4 +38,24 @@ public class SQLAccessPermissionService {
 		}
 		return null;
 	}
+	
+	public static boolean hasPermission(int customerID, String IBAN) {
+		try {
+			ResultSet permission = SQLExecute.executeQuery(
+					"SELECT * FROM AccessPermissions "
+					+ "JOIN BankAccounts ON BankAccounts.BankAccountID = AccessPermissions.BankAccountID "
+					+ "WHERE CustomerID = ? AND IBAN = ?",
+					new Object[] { customerID, IBAN });
+			if (!permission.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

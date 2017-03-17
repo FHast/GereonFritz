@@ -27,6 +27,20 @@ public class SQLCustomerService {
 		}
 		return null;
 	}
+	
+	public static boolean isCustomerByBSN(int BSN) {
+		try {
+			ResultSet res = getCustomerByBSN(BSN);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	public static ResultSet getCustomerByID(int ID) {
 		try {
@@ -37,6 +51,20 @@ public class SQLCustomerService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static boolean isCustomerByID(int ID) {
+		try {
+			ResultSet res = getCustomerByID(ID);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static boolean addCustomer(String name, String surname, String DOB, int BSN, String address, int phone,

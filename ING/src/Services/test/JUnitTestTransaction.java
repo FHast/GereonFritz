@@ -1,9 +1,6 @@
 package Services.test;
 
-import Services.InvalidParameterException;
-import Services.TransactionService;
-
-public class JUnitTestTrnsaction {
+public class JUnitTestTransaction {
 	public static void main(String[] args) {
 		
 	}

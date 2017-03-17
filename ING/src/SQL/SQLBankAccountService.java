@@ -39,7 +39,7 @@ public class SQLBankAccountService {
 			} else {
 				IBAN += bankAccountNumber;
 			}
-			
+
 			SQLExecute.execute("INSERT INTO BankAccounts VALUES(?,?,?,?)",
 					new Object[] { bankAccountNumber, startsaldo, mainCustomer, IBAN });
 			AccessPermissionService.addPermission(mainCustomer, IBAN);
@@ -48,10 +48,46 @@ public class SQLBankAccountService {
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
-			e.printStackTrace();	
+			e.printStackTrace();
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static ResultSet getBankAccountByIBAN(String IBAN) {
+		try {
+			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
+					new Object[] { IBAN });
+			return bankacc;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static boolean isBankAccountByIBAN(String IBAN) {
+		try {
+			ResultSet res = getBankAccountByIBAN(IBAN);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, SQLException {
+		ResultSet res = getBankAccountByIBAN(IBAN);
+		if (!res.next()) {
+			throw new InvalidParameterException("IBAN Invalid.");
+		} else {
+			return res.getDouble(2);
+		}
 	}
 }

@@ -1,9 +1,8 @@
 package Services;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import SQL.SQLExecute;
+import SQL.SQLBankAccountService;
 import SQL.SQLTransactionService;
 
 public class TransactionService {
@@ -18,9 +17,7 @@ public class TransactionService {
 			 * Check sender
 			 */
 			
-			ResultSet sender = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
-					new Object[] { senderIBAN });
-			if (!sender.next()) {
+			if (!SQLBankAccountService.isBankAccountByIBAN(senderIBAN)) {
 				throw new InvalidParameterException("Invalid Sender IBAN. ");
 			}
 			if (senderIBAN.equals(receiverIBAN)) {
@@ -31,9 +28,7 @@ public class TransactionService {
 			 * Check Receiver
 			 */
 			
-			ResultSet receiver = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
-					new Object[] { receiverIBAN });
-			if (!receiver.next()) {
+			if (!SQLBankAccountService.isBankAccountByIBAN(receiverIBAN)) {
 				throw new InvalidParameterException("Invalid Receiver IBAN. ");
 			}
 			
@@ -44,7 +39,7 @@ public class TransactionService {
 			if (amount <= 0) {
 				throw new InvalidParameterException("Amount must be positive. ");
 			}
-			if (sender.getInt(2) < amount) {
+			if (SQLBankAccountService.getSaldoByIBAN(senderIBAN) < amount) {
 				throw new InvalidParameterException("Amount exceeds sender saldo. ");
 			}
 
