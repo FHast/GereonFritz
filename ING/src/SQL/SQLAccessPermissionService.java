@@ -14,7 +14,8 @@ public class SQLAccessPermissionService {
 			if (!bankacc.next()) {
 				return false;
 			}
-			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, bankacc.getInt(1) });
+			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)",
+					new Object[] { customerID, bankacc.getInt(1) });
 			PinCardService.addPinCard(customerID, IBAN);
 			return true;
 		} catch (InvalidParameterTypeException e) {
@@ -38,14 +39,12 @@ public class SQLAccessPermissionService {
 		}
 		return null;
 	}
-	
+
 	public static boolean hasPermission(int customerID, String IBAN) {
 		try {
-			ResultSet permission = SQLExecute.executeQuery(
-					"SELECT * FROM AccessPermissions "
+			ResultSet permission = SQLExecute.executeQuery("SELECT * FROM AccessPermissions "
 					+ "JOIN BankAccounts ON BankAccounts.BankAccountID = AccessPermissions.BankAccountID "
-					+ "WHERE CustomerID = ? AND IBAN = ?",
-					new Object[] { customerID, IBAN });
+					+ "WHERE CustomerID = ? AND IBAN = ?", new Object[] { customerID, IBAN });
 			if (!permission.next()) {
 				return false;
 			} else {
@@ -57,5 +56,28 @@ public class SQLAccessPermissionService {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static void removePermissions(String IBAN) throws InvalidIBANException {
+		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
+		try {
+			SQLPinCardService.removePinCards(IBAN);
+			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ?", new Object[] { ID });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void removePermissions(int customerID) {
+		try {
+			SQLPinCardService.removePinCards(customerID);
+			SQLExecute.execute("DELETE FROM AccessPermissions WHERE CustomerID = ?", new Object[] { customerID });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

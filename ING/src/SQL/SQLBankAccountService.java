@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import Services.AccessPermissionService;
+import Services.BankLogicException;
 import Services.InvalidParameterException;
 
 public class SQLBankAccountService {
@@ -82,12 +83,54 @@ public class SQLBankAccountService {
 		return false;
 	}
 
-	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, SQLException {
-		ResultSet res = getBankAccountByIBAN(IBAN);
-		if (!res.next()) {
-			throw new InvalidParameterException("IBAN Invalid.");
-		} else {
-			return res.getDouble(2);
+	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, BankLogicException {
+		try {
+			ResultSet res = getBankAccountByIBAN(IBAN);
+			if (!res.next()) {
+				throw new InvalidParameterException("IBAN Invalid.");
+			} else {
+				return res.getDouble(2);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
+		throw new BankLogicException("Method Corrupted. ");
+	}
+
+	public static void removeBankAccountByIBAN(String IBAN) throws BankLogicException, InvalidParameterException {
+		if (getSaldoByIBAN(IBAN) > 0) {
+			throw new BankLogicException("Saldo of bankaccount not 0. ");
+		} else {
+			SQLAccessPermissionService.removePermissions(IBAN);
+			try {
+				SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static int getIDforIBAN(String IBAN) throws InvalidIBANException {
+		ResultSet res = getBankAccountByIBAN(IBAN);
+		try {
+			if (res.next()) {
+				return res.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidIBANException("IBAN not present.");
+	}
+
+	public static ResultSet getBankAccounts(int maincustomer) {
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
+					new Object[] { maincustomer });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

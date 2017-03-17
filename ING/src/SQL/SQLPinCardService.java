@@ -25,4 +25,25 @@ public class SQLPinCardService {
 		}
 		return false;
 	}
+
+	public static void removePinCards(int customerID) {
+		try {
+			SQLExecute.execute("DELETE FROM PinCards WHERE CustomerID = ?", new Object[] { customerID });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void removePinCards(String IBAN) throws InvalidIBANException {
+		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
+		try {
+			SQLExecute.execute("DELETE FROM PinCards WHERE BankAccountID = ?", new Object[] { ID });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -3,3 +3,5 @@ DATABASE:
 	transaction table?
 	Daily maximum transfer amount
 	
+	
+On Update CASCADE?

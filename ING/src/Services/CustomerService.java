@@ -94,4 +94,9 @@ public class CustomerService {
 		return SQLCustomerService.addCustomer(name, surname, DOB, BSN, address, phone, email);
 
 	}
+	
+	public static void removeCustomer(int ID) {
+		
+	}
+	
 }

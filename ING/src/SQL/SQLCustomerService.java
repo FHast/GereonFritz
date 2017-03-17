@@ -3,6 +3,9 @@ package SQL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import Services.BankLogicException;
+import Services.InvalidParameterException;
+
 public class SQLCustomerService {
 
 	public static ResultSet getCustomerByName(String name, String surname) {
@@ -27,7 +30,7 @@ public class SQLCustomerService {
 		}
 		return null;
 	}
-	
+
 	public static boolean isCustomerByBSN(int BSN) {
 		try {
 			ResultSet res = getCustomerByBSN(BSN);
@@ -44,7 +47,8 @@ public class SQLCustomerService {
 
 	public static ResultSet getCustomerByID(int ID) {
 		try {
-			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE CustomerAccountID=?", new Object[] { ID });
+			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE CustomerAccountID=?",
+					new Object[] { ID });
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InvalidParameterTypeException e) {
@@ -52,7 +56,7 @@ public class SQLCustomerService {
 		}
 		return null;
 	}
-	
+
 	public static boolean isCustomerByID(int ID) {
 		try {
 			ResultSet res = getCustomerByID(ID);
@@ -85,6 +89,22 @@ public class SQLCustomerService {
 			e.printStackTrace();
 		}
 		return false;
+	}
 
+	public static void removeCustomer(int customerID) {
+		ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
+		try {
+			while (baccs.next()) {
+				SQLBankAccountService.removeBankAccountByIBAN(baccs.getString(4));
+			}
+			SQLAccessPermissionService.removePermissions(customerID);
+			SQLExecute.execute("DELETE FROM CustomerAccounts WHERE CustomerAccountID = ?", new Object[] { customerID });
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BankLogicException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterException e) {
+			e.printStackTrace();
+		}
 	}
 }

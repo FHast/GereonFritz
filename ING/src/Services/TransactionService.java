@@ -1,7 +1,5 @@
 package Services;
 
-import java.sql.SQLException;
-
 import SQL.SQLBankAccountService;
 import SQL.SQLTransactionService;
 
@@ -45,8 +43,8 @@ public class TransactionService {
 
 			// All correct
 			SQLTransactionService.transfer(senderIBAN, receiverIBAN, amount, usage, receiverName);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (BankLogicException e) {
+			throw new InvalidParameterException("Invalid Sender IBAN. ");
 		}
 	}
 }
