@@ -97,7 +97,6 @@ public class SQLCustomerService {
 			while (baccs.next()) {
 				SQLBankAccountService.removeBankAccountByIBAN(baccs.getString(4));
 			}
-			SQLAccessPermissionService.removePermissions(customerID);
 			SQLExecute.execute("DELETE FROM CustomerAccounts WHERE CustomerAccountID = ?", new Object[] { customerID });
 		} catch (SQLException e) {
 			e.printStackTrace();

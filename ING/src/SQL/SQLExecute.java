@@ -186,8 +186,10 @@ public class SQLExecute {
 						state = con.createStatement();
 						state.execute(s);
 					}
-					SQLdatabaseFillService.main(null);
 					System.out.println("Creation finished.");
+					System.out.println("Filling database...");
+					SQLdatabaseFillService.main(null);
+					System.out.println("finished.");
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();

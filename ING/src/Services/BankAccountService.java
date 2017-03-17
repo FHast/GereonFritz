@@ -10,7 +10,7 @@ public class BankAccountService {
 		 * Check main customer
 		 */
 		
-		if (SQLCustomerService.isCustomerByID(mainCustomer)) {
+		if (!SQLCustomerService.isCustomerByID(mainCustomer)) {
 			throw new InvalidParameterException("mainCustomer not present. ");
 		}
 

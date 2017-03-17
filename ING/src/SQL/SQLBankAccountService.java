@@ -101,7 +101,6 @@ public class SQLBankAccountService {
 		if (getSaldoByIBAN(IBAN) > 0) {
 			throw new BankLogicException("Saldo of bankaccount not 0. ");
 		} else {
-			SQLAccessPermissionService.removePermissions(IBAN);
 			try {
 				SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
 			} catch (SQLException e) {

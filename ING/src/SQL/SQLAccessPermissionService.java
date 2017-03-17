@@ -61,7 +61,6 @@ public class SQLAccessPermissionService {
 	public static void removePermissions(String IBAN) throws InvalidIBANException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLPinCardService.removePinCards(IBAN);
 			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ?", new Object[] { ID });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
