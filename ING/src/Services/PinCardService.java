@@ -7,7 +7,7 @@ import SQL.SQLLayerException;
 import SQL.SQLPinCardService;
 
 public class PinCardService {
-	public static boolean addPinCard(int customerID, String IBAN) throws InvalidParameterException {
+	public static void addPinCard(int customerID, String IBAN) throws InvalidParameterException {
 		if (customerID <= 0 || IBAN == null) {
 			throw new InvalidParameterException("Values cannot be 0 or null.");
 		}
@@ -36,10 +36,14 @@ public class PinCardService {
 		 * Check permissions
 		 */
 
-		if (!SQLAccessPermissionService.hasPermission(customerID, IBAN)) {
-			throw new InvalidParameterException("Customer has no access permission!");
+		try {
+			if (!SQLAccessPermissionService.hasPermission(customerID, IBAN)) {
+				throw new InvalidParameterException("Customer has no access permission!");
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
 		}
 
-		return SQLPinCardService.addPinCard(customerID, IBAN);
+		SQLPinCardService.addPinCard(customerID, IBAN);
 	}
 }

@@ -13,7 +13,9 @@ public class SQLBankAccountService {
 	public static final String COUNTRY = "NL";
 	public static final String BLZ = "1337";
 
-	public static boolean addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
+	// ADDING
+	
+	public static void addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
 
 		try {
 			ResultSet bankAccounts = SQLExecute.executeQuery("SELECT MAX(BankAccountID) FROM BankAccounts");
@@ -45,7 +47,6 @@ public class SQLBankAccountService {
 			SQLExecute.execute("INSERT INTO BankAccounts VALUES(?,?,?,?)",
 					new Object[] { bankAccountNumber, startsaldo, mainCustomer, IBAN });
 			AccessPermissionService.addPermission(mainCustomer, IBAN);
-			return true;
 
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -54,9 +55,22 @@ public class SQLBankAccountService {
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
-		throw new SQLLayerException();
 	}
 
+	// GETIING
+	
+	public static ResultSet getBankAccounts(int maincustomer) throws SQLLayerException {
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
+					new Object[] { maincustomer });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
 	public static ResultSet getBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
@@ -97,28 +111,7 @@ public class SQLBankAccountService {
 		}
 		throw new SQLLayerException();
 	}
-
-	public static void removeBankAccountByIBAN(String IBAN) {
-		try {
-			SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (InvalidParameterTypeException e) {
-			e.printStackTrace();
-		}
-	}
 	
-	public static void removeBankAccounts(int customerID) throws BankLogicException, InvalidParameterException {
-		try {
-			ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
-			while (baccs.next()) {
-				BankAccountService.removeBankAccount(baccs.getString(4));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static int getIDforIBAN(String IBAN) throws InvalidIBANException, SQLLayerException {
 		ResultSet res = getBankAccountByIBAN(IBAN);
 		try {
@@ -130,16 +123,27 @@ public class SQLBankAccountService {
 		}
 		throw new InvalidIBANException("IBAN not present.");
 	}
+	
+	// REMOVING
 
-	public static ResultSet getBankAccounts(int maincustomer) {
+	public static void removeBankAccountByIBAN(String IBAN) {
 		try {
-			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
-					new Object[] { maincustomer });
+			SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
+		} catch (SQLException e) {
+			e.printStackTrace();
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static void removeBankAccounts(int customerID) throws BankLogicException, InvalidParameterException, SQLLayerException {
+		try {
+			ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
+			while (baccs.next()) {
+				BankAccountService.removeBankAccount(baccs.getString(4));
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
-	}
+	}	
 }

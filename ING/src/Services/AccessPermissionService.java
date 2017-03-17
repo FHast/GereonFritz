@@ -6,7 +6,7 @@ import SQL.SQLCustomerService;
 import SQL.SQLLayerException;
 
 public class AccessPermissionService {
-	public static boolean addPermission(int customerID, String IBAN) throws InvalidParameterException {
+	public static void addPermission(int customerID, String IBAN) throws InvalidParameterException {
 		
 		/**
 		 * Check Parameters
@@ -38,6 +38,10 @@ public class AccessPermissionService {
 
 		// All correct
 
-		return SQLAccessPermissionService.addPermission(customerID, IBAN);
+		try {
+			SQLAccessPermissionService.addPermission(customerID, IBAN);
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
 	}
 }

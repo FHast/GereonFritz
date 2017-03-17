@@ -7,17 +7,15 @@ import Services.InvalidParameterException;
 import Services.PinCardService;
 
 public class SQLAccessPermissionService {
-	public static boolean addPermission(int customerID, String IBAN) {
+	
+	// ADDING
+	
+	public static void addPermission(int customerID, String IBAN) throws SQLLayerException {
 		try {
-			ResultSet bankacc = SQLExecute.executeQuery("SELECT BankAccountID FROM BankAccounts WHERE IBAN = ?",
-					new Object[] { IBAN });
-			if (!bankacc.next()) {
-				return false;
-			}
+			int bankID = SQLBankAccountService.getIDforIBAN(IBAN);
 			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)",
-					new Object[] { customerID, bankacc.getInt(1) });
+					new Object[] { customerID, bankID });
 			PinCardService.addPinCard(customerID, IBAN);
-			return true;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -25,10 +23,11 @@ public class SQLAccessPermissionService {
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
-		return false;
 	}
 
-	public static ResultSet getPermissions(int customerID) {
+	// GETTING
+	
+	public static ResultSet getPermissions(int customerID) throws SQLLayerException {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM AccessPermissions WHERE CustomerID = ?",
 					new Object[] { customerID });
@@ -37,10 +36,10 @@ public class SQLAccessPermissionService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		throw new SQLLayerException();
 	}
 
-	public static boolean hasPermission(int customerID, String IBAN) {
+	public static boolean hasPermission(int customerID, String IBAN) throws SQLLayerException {
 		try {
 			ResultSet permission = SQLExecute.executeQuery("SELECT * FROM AccessPermissions "
 					+ "JOIN BankAccounts ON BankAccounts.BankAccountID = AccessPermissions.BankAccountID "
@@ -55,9 +54,11 @@ public class SQLAccessPermissionService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
+		throw new SQLLayerException();
 	}
 
+	// REMOVING
+	
 	public static void removePermissions(String IBAN) throws InvalidIBANException, SQLLayerException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {

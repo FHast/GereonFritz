@@ -6,7 +6,7 @@ import SQL.SQLLayerException;
 
 public class BankAccountService {
 
-	public static boolean addBankAccount(int mainCustomer, double startsaldo) throws InvalidParameterException {
+	public static void addBankAccount(int mainCustomer, double startsaldo) throws InvalidParameterException {
 		/**
 		 * Check main customer
 		 */
@@ -16,15 +16,14 @@ public class BankAccountService {
 		}
 
 		try {
-			return SQLBankAccountService.addBankAccount(mainCustomer, startsaldo);
+			SQLBankAccountService.addBankAccount(mainCustomer, startsaldo);
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
-			return false;
 		}
 	}
 
-	public static boolean addBankAccount(int mainCustomer) throws InvalidParameterException {
-		return addBankAccount(mainCustomer, 0);
+	public static void addBankAccount(int mainCustomer) throws InvalidParameterException {
+		addBankAccount(mainCustomer, 0);
 	}
 
 	public static void removeBankAccount(String IBAN) throws BankLogicException, InvalidParameterException {
@@ -40,10 +39,15 @@ public class BankAccountService {
 	}
 
 	public static void removeBankAccounts(int customerID) throws InvalidParameterException, BankLogicException {
-		if (SQLCustomerService.isCustomerByID(customerID)) {
-			SQLBankAccountService.removeBankAccounts(customerID);
-		} else {
-			throw new InvalidParameterException("Invalid customer ID: " + customerID);
+		try {
+			if (SQLCustomerService.isCustomerByID(customerID)) {
+				SQLBankAccountService.removeBankAccounts(customerID);
+			} else {
+				throw new InvalidParameterException("Invalid customer ID: " + customerID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
 		}
+
 	}
 }
