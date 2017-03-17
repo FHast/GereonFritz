@@ -3,6 +3,7 @@ package Services;
 import SQL.SQLAccessPermissionService;
 import SQL.SQLBankAccountService;
 import SQL.SQLCustomerService;
+import SQL.SQLLayerException;
 
 public class AccessPermissionService {
 	public static boolean addPermission(int customerID, String IBAN) throws InvalidParameterException {
@@ -27,8 +28,12 @@ public class AccessPermissionService {
 		 * Check IBAN
 		 */
 
-		if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-			throw new InvalidParameterException("IBAN not valid. ");
+		try {
+			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				throw new InvalidParameterException("IBAN not valid. ");
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
 		}
 
 		// All correct

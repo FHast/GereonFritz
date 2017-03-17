@@ -92,15 +92,9 @@ public class SQLCustomerService {
 	}
 
 	public static void removeCustomer(int customerID) {
-		ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
 		try {
-			while (baccs.next()) {
-				SQLBankAccountService.removeBankAccountByIBAN(baccs.getString(4));
-			}
 			SQLExecute.execute("DELETE FROM CustomerAccounts WHERE CustomerAccountID = ?", new Object[] { customerID });
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (BankLogicException e) {
 			e.printStackTrace();
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();

@@ -58,7 +58,7 @@ public class SQLAccessPermissionService {
 		return false;
 	}
 
-	public static void removePermissions(String IBAN) throws InvalidIBANException {
+	public static void removePermissions(String IBAN) throws InvalidIBANException, SQLLayerException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
 			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ?", new Object[] { ID });

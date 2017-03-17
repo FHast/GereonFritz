@@ -1,6 +1,10 @@
 package Services;
 
+import java.sql.ResultSet;
+
+import SQL.SQLBankAccountService;
 import SQL.SQLCustomerService;
+import SQL.SQLLayerException;
 
 public class CustomerService {
 
@@ -94,9 +98,13 @@ public class CustomerService {
 		return SQLCustomerService.addCustomer(name, surname, DOB, BSN, address, phone, email);
 
 	}
-	
-	public static void removeCustomer(int ID) {
-		
+
+	public static void removeCustomer(int customerID) throws InvalidParameterException, BankLogicException {
+		if (SQLCustomerService.isCustomerByID(customerID)) {
+			BankAccountService.removeBankAccounts(customerID);
+			SQLCustomerService.removeCustomer(customerID);
+		} else {
+			throw new InvalidParameterException("Invalid customer ID: " + customerID);
+		}
 	}
-	
 }

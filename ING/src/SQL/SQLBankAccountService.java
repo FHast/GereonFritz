@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import Services.AccessPermissionService;
+import Services.BankAccountService;
 import Services.BankLogicException;
 import Services.InvalidParameterException;
 
@@ -12,7 +13,7 @@ public class SQLBankAccountService {
 	public static final String COUNTRY = "NL";
 	public static final String BLZ = "1337";
 
-	public static boolean addBankAccount(int mainCustomer, double startsaldo) {
+	public static boolean addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
 
 		try {
 			ResultSet bankAccounts = SQLExecute.executeQuery("SELECT MAX(BankAccountID) FROM BankAccounts");
@@ -53,10 +54,10 @@ public class SQLBankAccountService {
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
-		return false;
+		throw new SQLLayerException();
 	}
 
-	public static ResultSet getBankAccountByIBAN(String IBAN) {
+	public static ResultSet getBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
 					new Object[] { IBAN });
@@ -66,10 +67,10 @@ public class SQLBankAccountService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		throw new SQLLayerException();
 	}
 
-	public static boolean isBankAccountByIBAN(String IBAN) {
+	public static boolean isBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
 			if (!res.next()) {
@@ -80,10 +81,10 @@ public class SQLBankAccountService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
+		throw new SQLLayerException();
 	}
 
-	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, BankLogicException {
+	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
 			if (!res.next()) {
@@ -94,22 +95,31 @@ public class SQLBankAccountService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		throw new BankLogicException("Method Corrupted. ");
+		throw new SQLLayerException();
 	}
 
-	public static void removeBankAccountByIBAN(String IBAN) throws BankLogicException, InvalidParameterException {
-		if (getSaldoByIBAN(IBAN) > 0) {
-			throw new BankLogicException("Saldo of bankaccount not 0. ");
-		} else {
-			try {
-				SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
-			} catch (SQLException e) {
-				e.printStackTrace();
+	public static void removeBankAccountByIBAN(String IBAN) {
+		try {
+			SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void removeBankAccounts(int customerID) throws BankLogicException, InvalidParameterException {
+		try {
+			ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
+			while (baccs.next()) {
+				BankAccountService.removeBankAccount(baccs.getString(4));
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
-	public static int getIDforIBAN(String IBAN) throws InvalidIBANException {
+	public static int getIDforIBAN(String IBAN) throws InvalidIBANException, SQLLayerException {
 		ResultSet res = getBankAccountByIBAN(IBAN);
 		try {
 			if (res.next()) {

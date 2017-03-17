@@ -36,7 +36,7 @@ public class SQLPinCardService {
 		}
 	}
 
-	public static void removePinCards(String IBAN) throws InvalidIBANException {
+	public static void removePinCards(String IBAN) throws InvalidIBANException, SQLLayerException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
 			SQLExecute.execute("DELETE FROM PinCards WHERE BankAccountID = ?", new Object[] { ID });

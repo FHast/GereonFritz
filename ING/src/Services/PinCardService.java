@@ -3,6 +3,7 @@ package Services;
 import SQL.SQLAccessPermissionService;
 import SQL.SQLBankAccountService;
 import SQL.SQLCustomerService;
+import SQL.SQLLayerException;
 import SQL.SQLPinCardService;
 
 public class PinCardService {
@@ -15,8 +16,12 @@ public class PinCardService {
 		 * Check IBAN
 		 */
 
-		if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-			throw new InvalidParameterException("IBAN is invalid. ");
+		try {
+			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				throw new InvalidParameterException("IBAN is invalid. ");
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
 		}
 
 		/**

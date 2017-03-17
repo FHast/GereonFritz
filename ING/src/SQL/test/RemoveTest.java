@@ -2,8 +2,10 @@ package SQL.test;
 
 import java.sql.SQLException;
 
-import SQL.SQLCustomerService;
 import SQL.SQLExecute;
+import Services.BankLogicException;
+import Services.CustomerService;
+import Services.InvalidParameterException;
 
 public class RemoveTest {
 	public static void main(String[] args) {
@@ -13,6 +15,12 @@ public class RemoveTest {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		SQLCustomerService.removeCustomer(2);
+		try {
+			CustomerService.removeCustomer(4);
+		} catch (InvalidParameterException e) {
+			e.printStackTrace();
+		} catch (BankLogicException e) {
+			System.out.println("Cancelled: Bank accounts not empty.");
+		}
 	}
 }
