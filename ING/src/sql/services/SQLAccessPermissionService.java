@@ -6,19 +6,27 @@ import java.sql.SQLException;
 import services.PinCardService;
 import services.exceptions.InvalidParameterException;
 import sql.SQLExecute;
-import sql.exceptions.InvalidIBANException;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
 
 public class SQLAccessPermissionService {
-	
+
 	// ADDING
-	
+
+	/**
+	 * Adds an access permission for a customer to a bank account into the
+	 * database.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 * @param IBAN
+	 *            the bank account
+	 * @throws SQLLayerException
+	 */
 	public static void addPermission(int customerID, String IBAN) throws SQLLayerException {
 		try {
 			int bankID = SQLBankAccountService.getIDforIBAN(IBAN);
-			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)",
-					new Object[] { customerID, bankID });
+			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, bankID });
 			PinCardService.addPinCard(customerID, IBAN);
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -30,7 +38,15 @@ public class SQLAccessPermissionService {
 	}
 
 	// GETTING
-	
+
+	/**
+	 * Returns the ResultSet of all permission a customer has.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 * @return ResultSet of all permissions connected to this customer
+	 * @throws SQLLayerException
+	 */
 	public static ResultSet getPermissions(int customerID) throws SQLLayerException {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM AccessPermissions WHERE CustomerID = ?",
@@ -43,6 +59,16 @@ public class SQLAccessPermissionService {
 		throw new SQLLayerException();
 	}
 
+	/**
+	 * Checks whether a customer has got permission to a bank account.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 * @param IBAN
+	 *            the bank account
+	 * @return true if customer has permission, otherwise false
+	 * @throws SQLLayerException
+	 */
 	public static boolean hasPermission(int customerID, String IBAN) throws SQLLayerException {
 		try {
 			ResultSet permission = SQLExecute.executeQuery("SELECT * FROM AccessPermissions "
@@ -62,8 +88,15 @@ public class SQLAccessPermissionService {
 	}
 
 	// REMOVING
-	
-	public static void removePermissions(String IBAN) throws InvalidIBANException, SQLLayerException {
+
+	/**
+	 * Removes all permissions connected to a bank account.
+	 * 
+	 * @param IBAN
+	 *            the bank account
+	 * @throws SQLLayerException
+	 */
+	public static void removePermissions(String IBAN) throws SQLLayerException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
 			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ?", new Object[] { ID });
@@ -73,7 +106,13 @@ public class SQLAccessPermissionService {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * Removes all permissions connected to a customer.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 */
 	public static void removePermissions(int customerID) {
 		try {
 			SQLPinCardService.removePinCards(customerID);
@@ -84,11 +123,21 @@ public class SQLAccessPermissionService {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void removePermission(int customerID, String IBAN) throws InvalidIBANException, SQLLayerException {
+
+	/**
+	 * Removes the access permission of a customer to a bank account.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 * @param IBAN
+	 *            the bank account
+	 * @throws SQLLayerException
+	 */
+	public static void removePermission(int customerID, String IBAN) throws SQLLayerException {
 		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ? AND CustomerID = ?", new Object[] { ID, customerID });
+			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ? AND CustomerID = ?",
+					new Object[] { ID, customerID });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

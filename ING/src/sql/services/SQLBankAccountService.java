@@ -8,7 +8,6 @@ import services.BankAccountService;
 import services.exceptions.BankLogicException;
 import services.exceptions.InvalidParameterException;
 import sql.SQLExecute;
-import sql.exceptions.InvalidIBANException;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
 
@@ -18,7 +17,17 @@ public class SQLBankAccountService {
 	public static final String BLZ = "1337";
 
 	// ADDING
-	
+
+	/**
+	 * Adds a bank account to the database. Creates the IBAN according to this
+	 * banks BLZ and Country code.
+	 * 
+	 * @param mainCustomer
+	 *            the owner of the bank account.
+	 * @param startsaldo
+	 *            the initial capital.
+	 * @throws SQLLayerException
+	 */
 	public static void addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
 
 		try {
@@ -62,7 +71,15 @@ public class SQLBankAccountService {
 	}
 
 	// GETIING
-	
+
+	/**
+	 * Returns all bank accounts a customer owns.
+	 * 
+	 * @param maincustomer
+	 *            the customer
+	 * @return ResultSet of all bank accounts
+	 * @throws SQLLayerException
+	 */
 	public static ResultSet getBankAccounts(int maincustomer) throws SQLLayerException {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
@@ -74,7 +91,15 @@ public class SQLBankAccountService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
+	/**
+	 * Returns the bank account which has the given IBAN.
+	 * 
+	 * @param IBAN
+	 *            the IBAN
+	 * @return ResultSet containing the bank account information
+	 * @throws SQLLayerException
+	 */
 	public static ResultSet getBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
@@ -88,6 +113,14 @@ public class SQLBankAccountService {
 		throw new SQLLayerException();
 	}
 
+	/**
+	 * Checks whether this IBAN is valid or not.
+	 * 
+	 * @param IBAN
+	 *            the IBAN
+	 * @return true if a bank account exists with this IBAN, otherwise false
+	 * @throws SQLLayerException
+	 */
 	public static boolean isBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
@@ -102,21 +135,34 @@ public class SQLBankAccountService {
 		throw new SQLLayerException();
 	}
 
-	public static double getSaldoByIBAN(String IBAN) throws InvalidParameterException, SQLLayerException {
+	/**
+	 * Returns the saldo of a bank account.
+	 * 
+	 * @param IBAN
+	 *            the bank account
+	 * @return saldo as double
+	 * @throws SQLLayerException
+	 */
+	public static double getSaldoByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
-			if (!res.next()) {
-				throw new InvalidParameterException("IBAN Invalid.");
-			} else {
-				return res.getDouble(2);
-			}
+			res.next();
+			return res.getDouble(2);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		throw new SQLLayerException();
 	}
-	
-	public static int getIDforIBAN(String IBAN) throws InvalidIBANException, SQLLayerException {
+
+	/**
+	 * Returns the identifier of a bank account connected to a given IBAN.
+	 * 
+	 * @param IBAN
+	 *            the IBAN
+	 * @return the bank account ID connected to this IBAN
+	 * @throws SQLLayerException
+	 */
+	public static int getIDforIBAN(String IBAN) throws SQLLayerException {
 		ResultSet res = getBankAccountByIBAN(IBAN);
 		try {
 			if (res.next()) {
@@ -125,11 +171,18 @@ public class SQLBankAccountService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidIBANException("IBAN not present.");
+		throw new SQLLayerException();
 	}
-	
+
 	// REMOVING
 
+	/**
+	 * Removing a bank account from the database. Does not check whether money
+	 * will be lost.
+	 * 
+	 * @param IBAN
+	 *            the bank account
+	 */
 	public static void removeBankAccountByIBAN(String IBAN) {
 		try {
 			SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
@@ -139,8 +192,18 @@ public class SQLBankAccountService {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void removeBankAccounts(int customerID) throws BankLogicException, InvalidParameterException, SQLLayerException {
+
+	/**
+	 * Removes all bank accounts this customer owns. Does check if saldo equals
+	 * 0 in any account.
+	 * 
+	 * @param customerID
+	 *            the customer
+	 * @throws BankLogicException
+	 *             if saldo of any account equals 0;
+	 * @throws SQLLayerException
+	 */
+	public static void removeBankAccounts(int customerID) throws BankLogicException, SQLLayerException {
 		try {
 			ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
 			while (baccs.next()) {
@@ -149,5 +212,5 @@ public class SQLBankAccountService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}	
+	}
 }

@@ -58,7 +58,7 @@ public class BankAccountService {
 	 * @throws InvalidParameterException
 	 *             if the IBAN is invalid
 	 */
-	public static void removeBankAccount(String IBAN) throws BankLogicException, InvalidParameterException {
+	public static void removeBankAccount(String IBAN) throws BankLogicException {
 		try {
 			if (SQLBankAccountService.getSaldoByIBAN(IBAN) > 0) {
 				throw new BankLogicException("Saldo of bankaccount not 0. IBAN: " + IBAN);

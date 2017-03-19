@@ -3,7 +3,6 @@ package sql.services;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-import services.exceptions.InvalidParameterException;
 import sql.SQLExecute;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
@@ -12,8 +11,24 @@ public class SQLTransactionService {
 
 	// ADDING
 
+	/**
+	 * Adding a transaction entry to the database and transferring money
+	 * accordingly. Does not check any parameter!
+	 * 
+	 * @param senderIBAN
+	 *            sender bank account
+	 * @param receiverIBAN
+	 *            receiver bank account
+	 * @param amount
+	 *            amount
+	 * @param usage
+	 *            Text containing information about usage
+	 * @param receiverName
+	 *            receiver customer name
+	 * @throws SQLLayerException
+	 */
 	public static void transfer(String senderIBAN, String receiverIBAN, double amount, String usage,
-			String receiverName) throws SQLLayerException, InvalidParameterException {
+			String receiverName) throws SQLLayerException {
 		try {
 			LocalDateTime currentTime = LocalDateTime.now();
 			String datetime = currentTime.toString();
