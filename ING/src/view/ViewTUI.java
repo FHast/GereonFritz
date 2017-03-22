@@ -21,11 +21,11 @@ public class ViewTUI extends Observable implements Runnable {
 	private PrintWriter out = new PrintWriter(outStream);
 
 	public ViewTUI() {
-
+		
 	}
 
 	public String readString(String question) {
-		writeString(question);
+		//writeString(question);
 		String antw = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
@@ -68,5 +68,4 @@ public class ViewTUI extends Observable implements Runnable {
 		writeString("SHUTDOWN");
 		out.close();
 	}
-
 }

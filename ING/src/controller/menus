@@ -1,0 +1,36 @@
+0
+MAIN MENU
+Customers;1
+Bank accounts;2
+Transactions;3
+/
+1
+CUSTOMERS
+Find a customer;11
+Create new customer;12
+/
+11
+SEARCHING FOR A CUSTOMER
+ID;11
+BSN;11
+Email;11
+/
+12
+CREATING NEW CUSTOMER
+/
+2
+BANK ACCOUNTS
+Find a bank account;21
+Create new bank account;22
+/
+21
+SEARCHING FOR A BANK ACCOUNT
+/
+22
+CREATING NEW BANK ACCOUNT
+/
+3
+TRANSACTIONS
+/
+
+
