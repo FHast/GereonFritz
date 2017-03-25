@@ -1,5 +1,7 @@
 package services;
 
+import java.sql.ResultSet;
+
 import services.exceptions.BankLogicException;
 import services.exceptions.InvalidParameterException;
 import sql.exceptions.SQLLayerException;
@@ -99,6 +101,41 @@ public class CustomerService {
 		// Seems valid, execute query!
 		SQLCustomerService.addCustomer(name, surname, DOB, BSN, address, phone, email);
 
+	}
+
+	// GETTING
+
+	public static ResultSet getCustomerByID(int ID) throws InvalidParameterException {
+		try {
+			if (SQLCustomerService.isCustomerByID(ID)) {
+				return SQLCustomerService.getCustomerByID(ID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("ID is invalid.");
+	}
+	
+	public static ResultSet getCustomerByBSN(int BSN) throws InvalidParameterException {
+		try {
+			if (SQLCustomerService.isCustomerByBSN(BSN)) {
+				return SQLCustomerService.getCustomerByBSN(BSN);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("BSN is invalid.");
+	}
+	
+	public static ResultSet getCustomerByEmail(String email) throws InvalidParameterException {
+		try {
+			if (SQLCustomerService.isCustomerByEmail(email)) {
+				return SQLCustomerService.getCustomerByEmail(email);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("BSN is invalid.");
 	}
 
 	// REMOVING

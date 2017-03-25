@@ -85,6 +85,17 @@ public class SQLCustomerService {
 		}
 		throw new SQLLayerException();
 	}
+	
+	public static ResultSet getCustomerByEmail(String email) throws SQLLayerException {
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Email=?", new Object[] { email });
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
 
 	/**
 	 * Returns the customer having the given ID.
@@ -139,6 +150,20 @@ public class SQLCustomerService {
 	public static boolean isCustomerByID(int ID) throws SQLLayerException {
 		try {
 			ResultSet res = getCustomerByID(ID);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	public static boolean isCustomerByEmail(String email) throws SQLLayerException {
+		try {
+			ResultSet res = getCustomerByEmail(email);
 			if (!res.next()) {
 				return false;
 			} else {
