@@ -1,5 +1,7 @@
 package services;
 
+import java.sql.ResultSet;
+
 import services.exceptions.InvalidParameterException;
 import sql.exceptions.SQLLayerException;
 import sql.services.SQLAccessPermissionService;
@@ -61,6 +63,30 @@ public class AccessPermissionService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	// GETTING
+	
+	public static ResultSet getPermissionsByCustomer(int ID) throws InvalidParameterException {
+		try {
+			if (SQLCustomerService.isCustomerByID(ID)) {
+				return SQLAccessPermissionService.getPermissions(ID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("Customer ID is invalid.");
+	}
+	
+	public static ResultSet getPermissionsByIBAN(String IBAN) throws InvalidParameterException {
+		try {
+			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				return SQLAccessPermissionService.getPermissionsByIBAN(IBAN);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("IBAN is invalid.");
 	}
 
 	// REMOVING

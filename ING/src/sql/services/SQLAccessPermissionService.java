@@ -58,6 +58,19 @@ public class SQLAccessPermissionService {
 		}
 		throw new SQLLayerException();
 	}
+	
+	public static ResultSet getPermissionsByIBAN(String IBAN) throws SQLLayerException {
+		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM AccessPermissions WHERE BankAccountID = ?",
+					new Object[] { ID });
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
 
 	/**
 	 * Checks whether a customer has got permission to a bank account.

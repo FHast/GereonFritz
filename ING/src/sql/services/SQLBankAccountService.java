@@ -28,11 +28,12 @@ public class SQLBankAccountService {
 	 *            the initial capital.
 	 * @throws SQLLayerException
 	 */
-	public static void addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
+	public static int addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
 
+		int bankAccountNumber = -1;
 		try {
 			ResultSet bankAccounts = SQLExecute.executeQuery("SELECT MAX(BankAccountID) FROM BankAccounts");
-			int bankAccountNumber = bankAccounts.getInt(1) + 1;
+			bankAccountNumber = bankAccounts.getInt(1) + 1;
 
 			String IBAN = COUNTRY + BLZ;
 			if (bankAccountNumber < 10) {
@@ -68,6 +69,7 @@ public class SQLBankAccountService {
 		} catch (InvalidParameterException e) {
 			e.printStackTrace();
 		}
+		return bankAccountNumber;
 	}
 
 	// GETIING
@@ -112,6 +114,33 @@ public class SQLBankAccountService {
 		}
 		throw new SQLLayerException();
 	}
+	
+	
+	public static ResultSet getBankAccountByID(int ID) throws SQLLayerException {
+		try {
+			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE BankAccountID = ?",
+					new Object[] { ID });
+			return bankacc;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	public static ResultSet getBankAccountsByCustomer(int customerID) throws SQLLayerException {
+		try {
+			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
+					new Object[] { customerID });
+			return bankacc;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
 
 	/**
 	 * Checks whether this IBAN is valid or not.
@@ -124,6 +153,20 @@ public class SQLBankAccountService {
 	public static boolean isBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	public static boolean isBankAccountByID(int ID) throws SQLLayerException {
+		try {
+			ResultSet res = getBankAccountByID(ID);
 			if (!res.next()) {
 				return false;
 			} else {

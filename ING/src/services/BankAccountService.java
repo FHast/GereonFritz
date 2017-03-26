@@ -1,5 +1,7 @@
 package services;
 
+import java.sql.ResultSet;
+
 import services.exceptions.BankLogicException;
 import services.exceptions.InvalidParameterException;
 import sql.exceptions.SQLLayerException;
@@ -20,18 +22,18 @@ public class BankAccountService {
 	 * @throws InvalidParameterException
 	 *             if the customerID is invalid
 	 */
-	public static void addBankAccount(int mainCustomer, double startsaldo) throws InvalidParameterException {
+	public static int addBankAccount(int mainCustomer, double startsaldo) throws InvalidParameterException {
 		/**
 		 * Check main customer
 		 */
 		try {
-			if (!SQLCustomerService.isCustomerByID(mainCustomer)) {
-				throw new InvalidParameterException("mainCustomer not present. ");
+			if (SQLCustomerService.isCustomerByID(mainCustomer)) {
+				return SQLBankAccountService.addBankAccount(mainCustomer, startsaldo);
 			}
-			SQLBankAccountService.addBankAccount(mainCustomer, startsaldo);
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
+		throw new InvalidParameterException("mainCustomer not present. ");
 	}
 
 	/**
@@ -44,6 +46,41 @@ public class BankAccountService {
 	 */
 	public static void addBankAccount(int mainCustomer) throws InvalidParameterException {
 		addBankAccount(mainCustomer, 0);
+	}
+
+	// GETTING
+
+	public static ResultSet getBankAccountByIBAN(String IBAN) throws InvalidParameterException {
+		try {
+			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				return SQLBankAccountService.getBankAccountByIBAN(IBAN);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("IBAN is invalid.");
+	}
+
+	public static ResultSet getBankAccountByID(int ID) throws InvalidParameterException {
+		try {
+			if (SQLBankAccountService.isBankAccountByID(ID)) {
+				return SQLBankAccountService.getBankAccountByID(ID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("ID is invalid.");
+	}
+	
+	public static ResultSet getBankAccountsByCustomer(int customerID) throws InvalidParameterException {
+		try {
+			if (SQLCustomerService.isCustomerByID(customerID)) {
+				return SQLBankAccountService.getBankAccountsByCustomer(customerID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("Customer ID is invalid.");
 	}
 
 	// REMOVING
@@ -60,10 +97,12 @@ public class BankAccountService {
 	 */
 	public static void removeBankAccount(String IBAN) throws BankLogicException {
 		try {
-			if (SQLBankAccountService.getSaldoByIBAN(IBAN) > 0) {
-				throw new BankLogicException("Saldo of bankaccount not 0. IBAN: " + IBAN);
-			} else {
-				SQLBankAccountService.removeBankAccountByIBAN(IBAN);
+			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				if (SQLBankAccountService.getSaldoByIBAN(IBAN) > 0) {
+					throw new BankLogicException("Saldo of bankaccount not 0. IBAN: " + IBAN);
+				} else {
+					SQLBankAccountService.removeBankAccountByIBAN(IBAN);
+				}
 			}
 		} catch (SQLLayerException e) {
 			e.printStackTrace();

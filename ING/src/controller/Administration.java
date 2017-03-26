@@ -2,9 +2,12 @@ package controller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import services.AccessPermissionService;
+import services.BankAccountService;
 import services.CustomerService;
 import services.exceptions.BankLogicException;
 import services.exceptions.InvalidParameterException;
@@ -14,7 +17,6 @@ public class Administration implements Observer {
 	private ViewTUI view;
 	private static final String cmd = ".";
 	private static final String menuError = "Input unvalid. Please start a command with > " + cmd + " <";
-	
 
 	public Administration() {
 		// User interface
@@ -98,7 +100,7 @@ public class Administration implements Observer {
 	}
 
 	private void menuBankaccounts() {
-		String[] items = new String[] { "Find a bank account", "Create new bank account" };
+		String[] items = new String[] { "Find bank accounts", "Create new bank account" };
 		String input;
 		do {
 			input = view.getAnswer(getMenuText("BANK ACCOUNT MENU", items));
@@ -109,10 +111,277 @@ public class Administration implements Observer {
 			case cmd + "0":
 				break;
 			case cmd + "1":
+				menuBaccFind();
+				break;
+			case cmd + "2":
+				menuBaccCreate();
+				break;
+			default:
+				view.writeError(menuError);
+			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuBaccFind() {
+		String[] items = new String[] { "IBAN", "Bank account number", "Owner ID" };
+		String input;
+		do {
+			input = view.getAnswer(getMenuText("BANK ACCOUNT SEARCH", items));
+			switch (input) {
+			case cmd + "exit":
+				shutDown();
+				break;
+			case cmd + "0":
+				break;
+			case cmd + "1":
+				String IBAN = view.getAnswer("Enter the IBAN...");
+				try {
+					ResultSet res = BankAccountService.getBankAccountByIBAN(IBAN);
+					menuBaccInfo(res);
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				}
+				break;
+			case cmd + "2":
+				String baccID = view.getAnswer("Enter the bank account ID...");
+				try {
+					ResultSet res = BankAccountService.getBankAccountByID(Integer.parseInt(baccID));
+					menuBaccInfo(res);
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				}
+				break;
+			case cmd + "3":
+				String ID = view.getAnswer("Enter the customer ID of the owner...");
+				try {
+					ResultSet res = BankAccountService.getBankAccountsByCustomer(Integer.parseInt(ID));
+					menuBaccList(res);
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				} catch (NumberFormatException e) {
+					view.writeError("Customer ID is invalid. ---");
+				}
+				break;
+			default:
+				view.writeError(menuError);
+			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuBaccCreate() {
+
+		String owner = "";
+		String saldo = "";
+
+		String input;
+		do {
+			String[] items = new String[] { "Owner ID: " + owner, "initial saldo: " + saldo, "ACCEPT", };
+			input = view.getAnswer(getMenuText("BANK ACCOUNT CREATION", items));
+			switch (input) {
+			case cmd + "exit":
+				shutDown();
+				break;
+			case cmd + "0":
+				break;
+			case cmd + "1":
+				owner = view.getAnswer("Enter the Customer ID of the owner...");
+				break;
+			case cmd + "2":
+				saldo = view.getAnswer("Enter the initial saldo [€.Cents]...");
+				break;
+			case cmd + "3":
+				try {
+					int ID = BankAccountService.addBankAccount(Integer.parseInt(owner), Double.parseDouble(saldo));
+					ResultSet res = BankAccountService.getBankAccountByID(ID);
+					menuBaccInfo(res);
+					input = "0";
+				} catch (NumberFormatException e) {
+					view.writeError("Owner ID or saldo format invalid.");
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				}
+				break;
+			default:
+				view.writeError(menuError);
+			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuBaccList(ResultSet res) {
+		Integer ownerID = null;
+		ArrayList<String> baccs = new ArrayList<>();
+		ArrayList<Integer> baccIDs = new ArrayList<>();
+		String baccInfo = "";
+		try {
+			while (res.next()) {
+				ownerID = res.getInt(3);
+				baccInfo = "";
+				baccIDs.add(res.getInt(1));
+				baccInfo += "IBAN: " + res.getString(4) + "\n Saldo: " + res.getDouble(2);
+				baccs.add(baccInfo);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String[] items = new String[baccs.size()];
+		for (int i = 0; i < baccs.size(); i++) {
+			items[i] = baccs.get(i);
+		}
+
+		String input;
+		do {
+			input = view.getAnswer(getMenuText("BANK ACCOUNTS OF CUSTOMER: " + ownerID, items));
+			if (input.startsWith(cmd)) {
+				if (input.equals(cmd + "0")) {
+					break;
+				} else if (input.equals(cmd + "exit")) {
+					shutDown();
+				} else {
+					int index = Integer.parseInt(input.substring(cmd.length())) - 1;
+					if (index < baccIDs.size()) {
+						try {
+							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
+							menuBaccInfo(bacc);
+						} catch (InvalidParameterException e) {
+							e.printStackTrace();
+						}
+					} else {
+						view.writeError(menuError);
+					}
+				}
+			} else {
+				view.writeError(menuError);
+			}
+
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuBaccPermissionList(ResultSet res, String IBAN) {
+		ArrayList<String> customers = new ArrayList<>();
+		ArrayList<Integer> custIDs = new ArrayList<>();
+		String custInfo = "";
+		try {
+			while (res.next()) {
+				custInfo = "";
+				custIDs.add(res.getInt(1));
+				ResultSet cust = CustomerService.getCustomerByID(res.getInt(1));
+				custInfo += "Name: " + cust.getString(3) + ", " + cust.getString(2) + "\n ID: " + cust.getInt(1);
+				customers.add(custInfo);
+				cust.close();
+			}
+		} catch (SQLException | InvalidParameterException e) {
+			e.printStackTrace();
+		}
+		String[] items = new String[customers.size()];
+		for (int i = 0; i < customers.size(); i++) {
+			items[i] = customers.get(i);
+		}
+		String input;
+		do {
+			input = view.getAnswer(getMenuText("CUSTOEMRS WITH PERMISSIONS TO: " + IBAN, items));
+			if (input.startsWith(cmd)) {
+				if (input.equals(cmd + "0")) {
+					break;
+				} else if (input.equals(cmd + "exit")) {
+					shutDown();
+				} else {
+					int index = Integer.parseInt(input.substring(cmd.length())) - 1;
+					if (index < custIDs.size()) {
+						try {
+							ResultSet cust = CustomerService.getCustomerByID(custIDs.get(index));
+							menuCustInfo(cust);
+						} catch (InvalidParameterException e) {
+							e.printStackTrace();
+						}
+					} else {
+						view.writeError(menuError);
+					}
+				}
+			} else {
+				view.writeError(menuError);
+			}
+
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuBaccInfo(ResultSet bacc) {
+		String info = "\n----- BANK ACCOUNT INFO -----\n";
+		try {
+			bacc.next();
+			info += "ID: " + bacc.getInt(1) + "\n";
+			info += "IBAN: " + bacc.getString(4) + "\n";
+			info += "Saldo: " + bacc.getDouble(2) + "\n";
+
+			String ownerInfo = "";
+			try {
+				ResultSet owner = CustomerService.getCustomerByID(bacc.getInt(3));
+				ownerInfo += "[" + owner.getInt(1) + "] " + owner.getString(3) + ", " + owner.getString(2);
+			} catch (InvalidParameterException e1) {
+				e1.printStackTrace();
+			}
+
+			info += "Owner: " + ownerInfo;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		String[] items = new String[] { "Change details", "Delete account", "Show permissions", "Give permission",
+				"Show Owner" };
+		String input;
+		do {
+			view.writeString(info);
+			input = view.getAnswer(getMenuText("OPTIONS", items));
+			switch (input) {
+			case cmd + "exit":
+				shutDown();
+				break;
+			case cmd + "0":
+				break;
+			case cmd + "1":
+				view.writeError("Not yet supported");
 				// TODO
 				break;
 			case cmd + "2":
-				// TODO
+				try {
+					BankAccountService.removeBankAccount(bacc.getString(4));
+					view.writeString("Success.");
+					input = "0";
+				} catch (BankLogicException e) {
+					view.writeError(e.getMessage());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				break;
+			case cmd + "3":
+				try {
+					ResultSet permissions = AccessPermissionService.getPermissionsByIBAN(bacc.getString(4));
+					menuBaccPermissionList(permissions, bacc.getString(4));
+				} catch (InvalidParameterException e1) {
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case cmd + "4":
+				String custID = view.getAnswer("Enter the customer ID...");
+				try {
+					AccessPermissionService.addPermission(Integer.parseInt(custID), bacc.getString(4));
+					view.writeString("Success.");
+				} catch (NumberFormatException e1) {
+					view.writeError("Customer ID format is invalid.");
+				} catch (InvalidParameterException e1) {
+					view.writeError(e1.getMessage());
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case cmd + "5":
+				try {
+					ResultSet res = CustomerService.getCustomerByID(bacc.getInt(3));
+					menuCustInfo(res);
+				} catch (InvalidParameterException | SQLException e) {
+					e.printStackTrace();
+				}
 				break;
 			default:
 				view.writeError(menuError);
@@ -152,7 +421,7 @@ public class Administration implements Observer {
 			case cmd + "0":
 				break;
 			case cmd + "1":
-				String id = view.getAnswer("Enter the ID: ");
+				String id = view.getAnswer("Enter the ID... ");
 				try {
 					ResultSet res = CustomerService.getCustomerByID(Integer.parseInt(id));
 					menuCustInfo(res);
@@ -163,7 +432,7 @@ public class Administration implements Observer {
 				}
 				break;
 			case cmd + "2":
-				String bsn = view.getAnswer("Enter the BSN: ");
+				String bsn = view.getAnswer("Enter the BSN... ");
 				try {
 					ResultSet res = CustomerService.getCustomerByBSN(Integer.parseInt(bsn));
 					menuCustInfo(res);
@@ -174,7 +443,7 @@ public class Administration implements Observer {
 				}
 				break;
 			case cmd + "3":
-				String email = view.getAnswer("Enter the BSN: ");
+				String email = view.getAnswer("Enter the BSN... ");
 				try {
 					ResultSet res = CustomerService.getCustomerByEmail(email);
 					menuCustInfo(res);
@@ -292,21 +561,93 @@ public class Administration implements Observer {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+				break;
 			case cmd + "3":
-				view.writeError("Not yet supported");
-				// TODO
+				try {
+					ResultSet permissions = AccessPermissionService.getPermissionsByCustomer(customer.getInt(1));
+					menuCustPermissionList(permissions, customer.getInt(1));
+				} catch (InvalidParameterException e1) {
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				break;
 			case cmd + "4":
-				view.writeError("Not yet supported");
-				// TODO
+				String IBAN = view.getAnswer("Enter the IBAN");
+				try {
+					AccessPermissionService.addPermission(customer.getInt(1), IBAN);
+				} catch (InvalidParameterException e1) {
+					view.writeError(e1.getMessage());
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				break;
 			case cmd + "5":
-				view.writeError("Not yet supported");
-				// TODO
+				try {
+					ResultSet res = BankAccountService.getBankAccountsByCustomer(customer.getInt(1));
+					menuBaccList(res);
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				break;
 			default:
 				view.writeError(menuError);
 			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuCustPermissionList(ResultSet res, int custID) {
+		ArrayList<String> baccs = new ArrayList<>();
+		ArrayList<Integer> baccIDs = new ArrayList<>();
+		String baccInfo = "";
+		try {
+			while (res.next()) {
+				baccInfo = "";
+				baccIDs.add(res.getInt(2));
+				ResultSet bacc = BankAccountService.getBankAccountByID(res.getInt(2));
+				ResultSet owner = CustomerService.getCustomerByID(bacc.getInt(3));
+				baccInfo += "IBAN: " + bacc.getString(4) + "\n Owner: " + owner.getString(3) + ", "
+						+ owner.getString(2);
+				baccs.add(baccInfo);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterException e) {
+			e.printStackTrace();
+		}
+		String[] items = new String[baccs.size()];
+		for (int i = 0; i < baccs.size(); i++) {
+			items[i] = baccs.get(i);
+		}
+
+		String input;
+		do {
+			input = view.getAnswer(getMenuText("PERMISSIONS OF CUSTOMER: " + custID, items));
+			if (input.startsWith(cmd)) {
+				if (input.equals(cmd + "0")) {
+					break;
+				} else if (input.equals(cmd + "exit")) {
+					shutDown();
+				} else {
+					int index = Integer.parseInt(input.substring(cmd.length())) - 1;
+					if (index < baccIDs.size()) {
+						try {
+							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
+							menuBaccInfo(bacc);
+						} catch (InvalidParameterException e) {
+							e.printStackTrace();
+						}
+					} else {
+						view.writeError(menuError);
+					}
+				}
+			} else {
+				view.writeError(menuError);
+			}
+
 		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
 	}
 
