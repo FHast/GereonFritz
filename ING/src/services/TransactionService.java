@@ -1,5 +1,7 @@
 package services;
 
+import java.sql.ResultSet;
+
 import services.exceptions.InvalidParameterException;
 import sql.exceptions.SQLLayerException;
 import sql.services.SQLBankAccountService;
@@ -67,5 +69,16 @@ public class TransactionService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static ResultSet getTransactionsByIBAN(String IBAN) throws InvalidParameterException {
+		try {
+			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
+				return SQLTransactionService.getTransactionsByIBAN(IBAN);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("IBAN is invalid.");
 	}
 }

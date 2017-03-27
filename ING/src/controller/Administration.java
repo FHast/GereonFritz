@@ -327,7 +327,7 @@ public class Administration implements Observer {
 		}
 
 		String[] items = new String[] { "Change details", "Delete account", "Show permissions", "Give permission",
-				"Show Owner" };
+				"Show Owner", "Transactions" };
 		String input;
 		do {
 			view.writeString(info);
@@ -381,6 +381,16 @@ public class Administration implements Observer {
 					ResultSet res = CustomerService.getCustomerByID(bacc.getInt(3));
 					menuCustInfo(res);
 				} catch (InvalidParameterException | SQLException e) {
+					e.printStackTrace();
+				}
+				break;
+			case cmd + "6":
+				try {
+					ResultSet transactions = TransactionService.getTransactionsByIBAN(bacc.getString(4));
+					menuTransList(transactions, bacc.getString(4));
+				} catch (InvalidParameterException e) {
+					e.printStackTrace();
+				} catch (SQLException e) {
 					e.printStackTrace();
 				}
 				break;
@@ -474,47 +484,42 @@ public class Administration implements Observer {
 		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
 	}
 
-	private void menuTransList(ResultSet res) {
-		Integer ownerID = null;
-		ArrayList<String> baccs = new ArrayList<>();
-		ArrayList<Integer> baccIDs = new ArrayList<>();
-		String baccInfo = "";
+	private void menuTransList(ResultSet res, String IBAN) {
+		ArrayList<String> transactions = new ArrayList<>();
+		ArrayList<Integer> transIDs = new ArrayList<>();
+		String transinfo = "";
 		try {
 			while (res.next()) {
-				ownerID = res.getInt(3);
-				baccInfo = "";
-				baccIDs.add(res.getInt(1));
-				baccInfo += "IBAN: " + res.getString(4) + "\n Saldo: " + res.getDouble(2);
-				baccs.add(baccInfo);
+				transinfo = "";
+				transIDs.add(res.getInt(1));
+				String datetime = res.getString(4);
+				String[] dateparts = datetime.split("T")[0].split("-");
+				String date = "" + dateparts[2] + "." + dateparts[1] + "." + dateparts[0].substring(2);
+				if (res.getString(6).equals(IBAN)) {
+				transinfo += "" + date + " Amount: -" + res.getDouble(2) + "\n Receiver: " + res.getString(7);
+				} else {
+					transinfo += "" + date + " Amount: +" + res.getDouble(2) + "\n Sender: " + res.getString(6);
+				}
+				transactions.add(transinfo);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		String[] items = new String[baccs.size()];
-		for (int i = 0; i < baccs.size(); i++) {
-			items[i] = baccs.get(i);
+		String[] items = new String[transactions.size()];
+		for (int i = 0; i < transactions.size(); i++) {
+			items[i] = transactions.get(i);
 		}
 
 		String input;
 		do {
-			input = view.getAnswer(getMenuText("BANK ACCOUNTS OF CUSTOMER: " + ownerID, items));
+			input = view.getAnswer(getMenuText("TRANSACTION HISTORY FOR: " + IBAN, items));
 			if (input.startsWith(cmd)) {
 				if (input.equals(cmd + "0")) {
 					break;
 				} else if (input.equals(cmd + "exit")) {
 					shutDown();
 				} else {
-					int index = Integer.parseInt(input.substring(cmd.length())) - 1;
-					if (index < baccIDs.size()) {
-						try {
-							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
-							menuBaccInfo(bacc);
-						} catch (InvalidParameterException e) {
-							e.printStackTrace();
-						}
-					} else {
-						view.writeError(menuError);
-					}
+					// TODO
 				}
 			} else {
 				view.writeError(menuError);

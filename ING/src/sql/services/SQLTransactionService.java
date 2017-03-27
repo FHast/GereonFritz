@@ -1,5 +1,6 @@
 package sql.services;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
@@ -44,5 +45,18 @@ public class SQLTransactionService {
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static ResultSet getTransactionsByIBAN(String IBAN) throws SQLLayerException {
+		try {
+			ResultSet res = SQLExecute.executeQuery("SELECT * FROM Transactions WHERE ReceiverIBAN = ? OR SenderIBAN = ?",
+					new Object[] { IBAN, IBAN });
+			return res;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
 	}
 }
