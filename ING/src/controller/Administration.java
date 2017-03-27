@@ -16,7 +16,7 @@ import view.ViewTUI;
 
 public class Administration implements Observer {
 	private ViewTUI view;
-	private static final String cmd = ".";
+	private static final String cmd = "";
 	private static final String menuError = "Input unvalid. Please start a command with > " + cmd + " <";
 
 	public Administration() {
