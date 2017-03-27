@@ -9,6 +9,7 @@ import java.util.Observer;
 import services.AccessPermissionService;
 import services.BankAccountService;
 import services.CustomerService;
+import services.TransactionService;
 import services.exceptions.BankLogicException;
 import services.exceptions.InvalidParameterException;
 import view.ViewTUI;
@@ -194,7 +195,7 @@ public class Administration implements Observer {
 					int ID = BankAccountService.addBankAccount(Integer.parseInt(owner), Double.parseDouble(saldo));
 					ResultSet res = BankAccountService.getBankAccountByID(ID);
 					menuBaccInfo(res);
-					input = "0";
+					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("Owner ID or saldo format invalid.");
 				} catch (InvalidParameterException e) {
@@ -345,7 +346,7 @@ public class Administration implements Observer {
 				try {
 					BankAccountService.removeBankAccount(bacc.getString(4));
 					view.writeString("Success.");
-					input = "0";
+					input = cmd + "0";
 				} catch (BankLogicException e) {
 					view.writeError(e.getMessage());
 				} catch (SQLException e) {
@@ -401,11 +402,124 @@ public class Administration implements Observer {
 			case cmd + "0":
 				break;
 			case cmd + "1":
-				// TODO
+				menuTransCreate();
 				break;
 			default:
 				view.writeError(menuError);
 			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+
+	private void menuTransCreate() {
+
+		String senderIBAN = "";
+		String receiverIBAN = "";
+		String receiverName = "";
+		String usage = "";
+		String amount = "";
+
+		String input;
+		do {
+			String[] items = new String[] { "Sender: " + senderIBAN, "Receiver: " + receiverIBAN,
+					"Receiver name: " + receiverName, "Usage: " + usage, "Amount: " + amount, "ACCEPT", };
+			input = view.getAnswer(getMenuText("NEW TRANSACTION", items));
+			switch (input) {
+			case cmd + "exit":
+				shutDown();
+				break;
+			case cmd + "0":
+				break;
+			case cmd + "1":
+				senderIBAN = view.getAnswer("Enter the senders' IBAN...");
+				if (!BankAccountService.isBankAccountByIBAN(senderIBAN)) {
+					view.writeError("IBAN is Invalid.");
+					senderIBAN = "";
+				}
+				break;
+			case cmd + "2":
+				receiverIBAN = view.getAnswer("Enter the receivers' IBAN...");
+				if (!BankAccountService.isBankAccountByIBAN(receiverIBAN)) {
+					view.writeError("IBAN is Invalid.");
+					receiverIBAN = "";
+				}
+				break;
+			case cmd + "3":
+				receiverName = view.getAnswer("Enter the name of the receiver...");
+				break;
+			case cmd + "4":
+				usage = view.getAnswer("Enter the usage...");
+				break;
+			case cmd + "5":
+				try {
+					amount = "" + Double.parseDouble(view.getAnswer("Enter the amount..."));
+				} catch (NumberFormatException e) {
+					view.writeError("Entered amount format is invalid.");
+				}
+				break;
+			case cmd + "6":
+				try {
+					TransactionService.transfer(senderIBAN, receiverIBAN, Double.parseDouble(amount), usage,
+							receiverName);
+					view.writeString("Success");
+					input = cmd + "0";
+				} catch (NumberFormatException e) {
+					view.writeError("Amount format is invalid.");
+				} catch (InvalidParameterException e) {
+					view.writeError(e.getMessage());
+				}
+				break;
+			default:
+				view.writeError(menuError);
+			}
+		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
+	}
+	
+	private void menuTransList(ResultSet res) {
+		Integer ownerID = null;
+		ArrayList<String> baccs = new ArrayList<>();
+		ArrayList<Integer> baccIDs = new ArrayList<>();
+		String baccInfo = "";
+		try {
+			while (res.next()) {
+				ownerID = res.getInt(3);
+				baccInfo = "";
+				baccIDs.add(res.getInt(1));
+				baccInfo += "IBAN: " + res.getString(4) + "\n Saldo: " + res.getDouble(2);
+				baccs.add(baccInfo);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String[] items = new String[baccs.size()];
+		for (int i = 0; i < baccs.size(); i++) {
+			items[i] = baccs.get(i);
+		}
+
+		String input;
+		do {
+			input = view.getAnswer(getMenuText("BANK ACCOUNTS OF CUSTOMER: " + ownerID, items));
+			if (input.startsWith(cmd)) {
+				if (input.equals(cmd + "0")) {
+					break;
+				} else if (input.equals(cmd + "exit")) {
+					shutDown();
+				} else {
+					int index = Integer.parseInt(input.substring(cmd.length())) - 1;
+					if (index < baccIDs.size()) {
+						try {
+							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
+							menuBaccInfo(bacc);
+						} catch (InvalidParameterException e) {
+							e.printStackTrace();
+						}
+					} else {
+						view.writeError(menuError);
+					}
+				}
+			} else {
+				view.writeError(menuError);
+			}
+
 		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
 	}
 
@@ -505,7 +619,7 @@ public class Administration implements Observer {
 							Integer.parseInt(phone), email);
 					ResultSet res = CustomerService.getCustomerByBSN(Integer.parseInt(bsn));
 					menuCustInfo(res);
-					input = "0";
+					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("BSN or phone number format invalid.");
 				} catch (InvalidParameterException e) {
@@ -555,7 +669,7 @@ public class Administration implements Observer {
 				try {
 					CustomerService.removeCustomer(customer.getInt(1));
 					view.writeString("Success.");
-					input = "0";
+					input = cmd + "0";
 				} catch (InvalidParameterException | BankLogicException e) {
 					view.writeError(e.getMessage());
 				} catch (SQLException e) {

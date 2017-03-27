@@ -82,6 +82,15 @@ public class BankAccountService {
 		}
 		throw new InvalidParameterException("Customer ID is invalid.");
 	}
+	
+	public static boolean isBankAccountByIBAN(String IBAN) {
+		try {
+			return SQLBankAccountService.isBankAccountByIBAN(IBAN);
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	// REMOVING
 
