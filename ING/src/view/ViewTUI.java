@@ -76,5 +76,4 @@ public class ViewTUI extends Observable implements Runnable {
 		writeString("SHUTDOWN");
 		out.close();
 	}
-
 }

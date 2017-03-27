@@ -473,7 +473,7 @@ public class Administration implements Observer {
 			}
 		} while (!input.equals(cmd + "0") && !input.equals(cmd + "exit"));
 	}
-	
+
 	private void menuTransList(ResultSet res) {
 		Integer ownerID = null;
 		ArrayList<String> baccs = new ArrayList<>();
