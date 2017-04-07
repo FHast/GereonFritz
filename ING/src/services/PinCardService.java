@@ -1,5 +1,8 @@
 package services;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import services.exceptions.InvalidParameterException;
 import sql.exceptions.SQLLayerException;
 import sql.services.SQLAccessPermissionService;
@@ -56,6 +59,32 @@ public class PinCardService {
 		}
 
 		SQLPinCardService.addPinCard(customerID, IBAN);
+	}
+	
+	// GETTING
+	
+	public static ResultSet isCorrectPin(int pinCardID, int pin) throws InvalidParameterException {
+		try {
+			if (SQLPinCardService.isCorrectPin(pinCardID, pin).next()) {
+				return SQLPinCardService.isCorrectPin(pinCardID, pin);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("Pin is invalid.");
+	}
+	
+	public static ResultSet getPinCardByID(int pinCardID) throws InvalidParameterException {
+		try {
+			if (SQLPinCardService.isPinCardByPinCardID(pinCardID)) {
+				return SQLPinCardService.getPinCardByPinCardID(pinCardID);
+			}
+		} catch (SQLLayerException e) {
+			e.printStackTrace();
+		}
+		throw new InvalidParameterException("PinCard ID is invalid.");
 	}
 
 	// REMOVING

@@ -40,6 +40,72 @@ public class SQLPinCardService {
 			e.printStackTrace();
 		}
 	}
+	
+	// GETTING
+	
+	/**
+	 * Returns the PinCard which has the given PinCard Id.
+	 * 
+	 * @param pinCardID
+	 *            the PinCard Id
+	 * @return ResultSet containing the PinCard information
+	 * @throws SQLLayerException
+	 */
+	public static ResultSet getPinCardByPinCardID(int pinCardID) throws SQLLayerException {
+		try {
+			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE PinCardID = ?",
+					new Object[] { pinCardID });
+			return pinCard;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	/**
+	 * Checks whether this PinCard Id is valid or not.
+	 * 
+	 * @param pinCardID
+	 *            the PinCard Id
+	 * @return true if a PinCard exists with this PinCardID, otherwise false
+	 * @throws SQLLayerException
+	 */
+	public static boolean isPinCardByPinCardID(int pinCardID) throws SQLLayerException {
+		try {
+			ResultSet res = getPinCardByPinCardID(pinCardID);
+			if (!res.next()) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	/**
+	 * Returns the PinCard which if the Pin is correct.
+	 * 
+	 * @param pin
+	 *            the Pin
+	 * @return ResultSet containing the PinCard information
+	 * @throws SQLLayerException
+	 */
+	public static ResultSet isCorrectPin(int pinCardID, int pin) throws SQLLayerException {
+		try {
+			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE PinCardID = ? AND PIN = ?",
+					new Object[] { pinCardID, pin });
+			return pinCard;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
 
 	// REMOVING
 
