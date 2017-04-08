@@ -94,15 +94,15 @@ public class Atm implements Observer {
 	private void menuMain(ResultSet res) {
 		String[] items = new String[] { "Eject card", "Make transaction", "Last transactions", "Withdraw money" };
 		double saldo = 0;
-		try {
-			saldo = (BankAccountService.getBankAccountByID(res.getInt(5))).getDouble(2);
-		} catch (InvalidParameterException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		String input;
 		do {
+			try {
+				saldo = (BankAccountService.getBankAccountByID(res.getInt(5))).getDouble(2);
+			} catch (InvalidParameterException e) {
+				e.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 			input = view.getAnswer(getMenuText("MAIN MENU " + saldo + "€", items));
 			switch (input) {
 			case cmd + "exit":
