@@ -50,10 +50,12 @@ public class Atm implements Observer {
 				shutDown();
 				break;
 			case cmd + "0":
-				int pinCardID = Integer.parseInt(view.getAnswer("Enter the PinCard ID..."));
 				try {
+					int pinCardID = Integer.parseInt(view.getAnswer("Enter the PinCard ID..."));
 					PinCardService.getPinCardByID(pinCardID);
 					menuLogIn(pinCardID);
+				} catch (NumberFormatException e) {
+					view.writeError("Given ID is invalid.");
 				} catch(InvalidParameterException e) {
 					view.writeError(e.getMessage());
 				}
@@ -81,6 +83,8 @@ public class Atm implements Observer {
 				try {
 					ResultSet res = PinCardService.isCorrectPin(pinCardID, pin);
 					menuMain(res);
+				} catch (NumberFormatException e) {
+					view.writeError("Given Pin is invalid.");
 				} catch (InvalidParameterException e) {
 					view.writeError(e.getMessage());
 				}
