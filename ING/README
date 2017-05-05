@@ -1,0 +1,16 @@
+README - v1.0
+
+This version implements the basic first set of functionality.
+There is no centralized JSON interface yet.
+
+START-UP:
+	- Administration:
+		Run the controller.Administration class
+	- ATM 
+		Run the controller.ATM class
+
+DATABASES:
+	- original.db is the empty version of the database
+	- userdata.db is the filled version which is accessed by the implementation.
+	
+	Integrity of the database is checked with startup, and eventually created if missing.

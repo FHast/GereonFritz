@@ -22,17 +22,8 @@ public class Administration implements Observer {
 	public Administration() {
 		// User interface
 		view = new ViewTUI();
-		// ((Observable) view).addObserver(this);
-		// Thread viewThread = new Thread((Runnable) view);
-		// viewThread.start();
-
+		// menu
 		menuMain();
-
-		// try {
-		// viewThread.join();
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// }
 	}
 
 	public static void main(String[] args) {
