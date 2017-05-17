@@ -1,12 +1,12 @@
-package sql.services;
+package sql.actors;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import modules.exceptions.InvalidParamValueException;
 import services.AccessPermissionService;
 import services.BankAccountService;
 import services.exceptions.BankLogicException;
-import services.exceptions.InvalidParameterException;
 import sql.SQLExecute;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
@@ -66,7 +66,7 @@ public class SQLBankAccountService {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 		return bankAccountNumber;

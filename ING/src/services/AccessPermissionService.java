@@ -2,11 +2,11 @@ package services;
 
 import java.sql.ResultSet;
 
-import services.exceptions.InvalidParameterException;
+import modules.exceptions.InvalidParamValueException;
+import sql.actors.SQLAccessPermissionService;
+import sql.actors.SQLBankAccountService;
+import sql.actors.SQLCustomerService;
 import sql.exceptions.SQLLayerException;
-import sql.services.SQLAccessPermissionService;
-import sql.services.SQLBankAccountService;
-import sql.services.SQLCustomerService;
 
 public class AccessPermissionService {
 
@@ -19,17 +19,17 @@ public class AccessPermissionService {
 	 *            the customer who gains access.
 	 * @param IBAN
 	 *            The account which is gained access to.
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 *             if customerID or IBAN is not valid.
 	 */
-	public static void addPermission(int customerID, String IBAN) throws InvalidParameterException {
+	public static void addPermission(int customerID, String IBAN) throws InvalidParamValueException {
 
 		/**
 		 * Check Parameters
 		 */
 
 		if (customerID <= 0 || IBAN == null) {
-			throw new InvalidParameterException("String cannot be null, int cannot be 0");
+			throw new InvalidParamValueException("String cannot be null, int cannot be 0");
 		}
 
 		/**
@@ -38,7 +38,7 @@ public class AccessPermissionService {
 
 		try {
 			if (!SQLCustomerService.isCustomerByID(customerID)) {
-				throw new InvalidParameterException("CustomerID is invalid. ");
+				throw new InvalidParamValueException("CustomerID is invalid. ");
 			}
 		} catch (SQLLayerException e1) {
 			e1.printStackTrace();
@@ -50,7 +50,7 @@ public class AccessPermissionService {
 
 		try {
 			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-				throw new InvalidParameterException("IBAN is invalid. ");
+				throw new InvalidParamValueException("IBAN is invalid. ");
 			}
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
@@ -67,7 +67,7 @@ public class AccessPermissionService {
 	
 	// GETTING
 	
-	public static ResultSet getPermissionsByCustomer(int ID) throws InvalidParameterException {
+	public static ResultSet getPermissionsByCustomer(int ID) throws InvalidParamValueException {
 		try {
 			if (SQLCustomerService.isCustomerByID(ID)) {
 				return SQLAccessPermissionService.getPermissions(ID);
@@ -75,10 +75,10 @@ public class AccessPermissionService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidParameterException("Customer ID is invalid.");
+		throw new InvalidParamValueException("Customer ID is invalid.");
 	}
 	
-	public static ResultSet getPermissionsByIBAN(String IBAN) throws InvalidParameterException {
+	public static ResultSet getPermissionsByIBAN(String IBAN) throws InvalidParamValueException {
 		try {
 			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
 				return SQLAccessPermissionService.getPermissionsByIBAN(IBAN);
@@ -86,7 +86,7 @@ public class AccessPermissionService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidParameterException("IBAN is invalid.");
+		throw new InvalidParamValueException("IBAN is invalid.");
 	}
 
 	// REMOVING
@@ -96,14 +96,14 @@ public class AccessPermissionService {
 	 * 
 	 * @param customerID
 	 *            the customer who loses all permissions.
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 */
-	public static void removePermissions(int customerID) throws InvalidParameterException {
+	public static void removePermissions(int customerID) throws InvalidParamValueException {
 		try {
 			if (SQLCustomerService.isCustomerByID(customerID)) {
 				SQLAccessPermissionService.removePermissions(customerID);
 			} else {
-				throw new InvalidParameterException("CustomerID is invalid. ");
+				throw new InvalidParamValueException("CustomerID is invalid. ");
 			}
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
@@ -115,14 +115,14 @@ public class AccessPermissionService {
 	 * 
 	 * @param IBAN
 	 *            The bank account
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 */
-	public static void removePermissions(String IBAN) throws InvalidParameterException {
+	public static void removePermissions(String IBAN) throws InvalidParamValueException {
 		try {
 			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
 				SQLAccessPermissionService.removePermissions(IBAN);
 			} else {
-				throw new InvalidParameterException("IBAN is invalid. ");
+				throw new InvalidParamValueException("IBAN is invalid. ");
 			}
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
@@ -136,15 +136,15 @@ public class AccessPermissionService {
 	 *            the customer who loses access.
 	 * @param IBAN
 	 *            the bank account
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 */
-	public static void removePermission(int customerID, String IBAN) throws InvalidParameterException {
+	public static void removePermission(int customerID, String IBAN) throws InvalidParamValueException {
 		try {
 			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-				throw new InvalidParameterException("IBAN is invalid. ");
+				throw new InvalidParamValueException("IBAN is invalid. ");
 			}
 			if (!SQLCustomerService.isCustomerByID(customerID)) {
-				throw new InvalidParameterException("CustomerID is invalid. ");
+				throw new InvalidParamValueException("CustomerID is invalid. ");
 			}
 			SQLAccessPermissionService.removePermission(customerID, IBAN);
 		} catch (SQLLayerException e) {

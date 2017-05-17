@@ -1,9 +1,10 @@
-package sql.services;
+package sql.actors;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
-import services.exceptions.InvalidParameterException;
+import modules.exceptions.InvalidParamValueException;
 import sql.SQLExecute;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
@@ -24,20 +25,15 @@ public class SQLCustomerService {
 	 * @param address
 	 * @param phone
 	 * @param email
+	 * @throws SQLLayerException 
 	 */
-	public static void addCustomer(String name, String surname, String DOB, int BSN, String address, int phone,
-			String email) {
-		String initials = "";
-		for (String s : name.split(" ")) {
-			initials += s.charAt(0);
-		}
-		initials += surname.charAt(0);
-
-		Object[] parameters = new Object[] { null, name, surname, initials, DOB, BSN, address, phone, email };
+	public static void addCustomer(Map<String, Object> params) throws SQLLayerException {
+		Object[] parameters = new Object[] { null, params.get("name"), params.get("surname"), params.get("initials"),
+				params.get("dob"), params.get("ssn"), params.get("address"), params.get("phone"), params.get("email") };
 		try {
 			SQLExecute.execute("INSERT INTO CustomerAccounts values(?,?,?,?,?,?,?,?,?)", parameters);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new SQLLayerException();
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +81,7 @@ public class SQLCustomerService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	public static ResultSet getCustomerByEmail(String email) throws SQLLayerException {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Email=?", new Object[] { email });
@@ -160,7 +156,7 @@ public class SQLCustomerService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	public static boolean isCustomerByEmail(String email) throws SQLLayerException {
 		try {
 			ResultSet res = getCustomerByEmail(email);
@@ -189,7 +185,7 @@ public class SQLCustomerService {
 			SQLExecute.execute("DELETE FROM CustomerAccounts WHERE CustomerAccountID = ?", new Object[] { customerID });
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 	}

@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import modules.exceptions.InvalidParamValueException;
 import services.BankAccountService;
 import services.CustomerService;
-import services.exceptions.InvalidParameterException;
 
 public class SQLdatabaseFillService {
 
@@ -72,7 +72,7 @@ public class SQLdatabaseFillService {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 
@@ -84,7 +84,7 @@ public class SQLdatabaseFillService {
 			int startsaldo = (int) (Math.random() * 10000 );
 			try {
 				BankAccountService.addBankAccount(mainCustomer, startsaldo);
-			} catch (InvalidParameterException e) {
+			} catch (InvalidParamValueException e) {
 				e.printStackTrace();
 			}
 		}

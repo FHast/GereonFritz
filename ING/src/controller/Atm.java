@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import modules.exceptions.InvalidParamValueException;
 import services.BankAccountService;
 import services.PinCardService;
 import services.TransactionService;
-import services.exceptions.InvalidParameterException;
 import view.ViewTUI;
 
 public class Atm implements Observer {
@@ -56,7 +56,7 @@ public class Atm implements Observer {
 					menuLogIn(pinCardID);
 				} catch (NumberFormatException e) {
 					view.writeError("Given ID is invalid.");
-				} catch(InvalidParameterException e) {
+				} catch(InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -85,7 +85,7 @@ public class Atm implements Observer {
 					menuMain(res);
 				} catch (NumberFormatException e) {
 					view.writeError("Given Pin is invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -102,7 +102,7 @@ public class Atm implements Observer {
 		do {
 			try {
 				saldo = (BankAccountService.getBankAccountByID(res.getInt(5))).getDouble(2);
-			} catch (InvalidParameterException e) {
+			} catch (InvalidParamValueException e) {
 				e.printStackTrace();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -135,7 +135,7 @@ public class Atm implements Observer {
 		String senderIBAN = "";
 		try {
 			senderIBAN = (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4);
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -189,7 +189,7 @@ public class Atm implements Observer {
 					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("Amount format is invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -203,7 +203,7 @@ public class Atm implements Observer {
 		String IBAN = "";
 		try {
 			IBAN = (BankAccountService.getBankAccountByID(pinRes.getInt(5))).getString(4);
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -211,7 +211,7 @@ public class Atm implements Observer {
 		ResultSet res = null;
 		try {
 			res = TransactionService.getTransactionsByIBAN((BankAccountService.getBankAccountByID(pinRes.getInt(5))).getString(4));
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -278,7 +278,7 @@ public class Atm implements Observer {
 		case cmd + "2":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[0], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -287,7 +287,7 @@ public class Atm implements Observer {
 		case cmd + "3":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[1], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -296,7 +296,7 @@ public class Atm implements Observer {
 		case cmd + "4":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[2], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -305,7 +305,7 @@ public class Atm implements Observer {
 		case cmd + "5":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[3], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -314,7 +314,7 @@ public class Atm implements Observer {
 		case cmd + "6":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[4], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -323,7 +323,7 @@ public class Atm implements Observer {
 		case cmd + "7":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[5], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -332,7 +332,7 @@ public class Atm implements Observer {
 		case cmd + "8":
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), amount[6], "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();
@@ -347,7 +347,7 @@ public class Atm implements Observer {
 			}
 			try {
 			TransactionService.transfer( (BankAccountService.getBankAccountByID(res.getInt(5))).getString(4), (BankAccountService.getBankAccountByID(atmAccountID)).getString(4), freeAmount, "WITHDRAW", "Bank");
-			} catch(InvalidParameterException e) {
+			} catch(InvalidParamValueException e) {
 				view.writeError(e.getMessage());
 			} catch(SQLException e) {
 				e.printStackTrace();

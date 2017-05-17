@@ -1,10 +1,10 @@
-package sql.services;
+package sql.actors;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import modules.exceptions.InvalidParamValueException;
 import services.PinCardService;
-import services.exceptions.InvalidParameterException;
 import sql.SQLExecute;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
@@ -32,7 +32,7 @@ public class SQLAccessPermissionService {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 	}

@@ -2,10 +2,10 @@ package services;
 
 import java.sql.ResultSet;
 
-import services.exceptions.InvalidParameterException;
+import modules.exceptions.InvalidParamValueException;
+import sql.actors.SQLBankAccountService;
+import sql.actors.SQLTransactionService;
 import sql.exceptions.SQLLayerException;
-import sql.services.SQLBankAccountService;
-import sql.services.SQLTransactionService;
 
 public class TransactionService {
 
@@ -24,14 +24,14 @@ public class TransactionService {
 	 *            Annotation of usage / message
 	 * @param receiverName
 	 *            receiver customer name
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 *             if any input is invalid
 	 */
 	public static void transfer(String senderIBAN, String receiverIBAN, double amount, String usage,
-			String receiverName) throws InvalidParameterException {
+			String receiverName) throws InvalidParamValueException {
 		try {
 			if (senderIBAN == null || receiverIBAN == null || receiverName == null) {
-				throw new InvalidParameterException("Values cannot be 0 or null.");
+				throw new InvalidParamValueException("Values cannot be 0 or null.");
 			}
 
 			/**
@@ -39,10 +39,10 @@ public class TransactionService {
 			 */
 
 			if (!SQLBankAccountService.isBankAccountByIBAN(senderIBAN)) {
-				throw new InvalidParameterException("Invalid Sender IBAN. ");
+				throw new InvalidParamValueException("Invalid Sender IBAN. ");
 			}
 			if (senderIBAN.equals(receiverIBAN)) {
-				throw new InvalidParameterException("senderIBAN cannot equal receiverIBAN");
+				throw new InvalidParamValueException("senderIBAN cannot equal receiverIBAN");
 			}
 
 			/**
@@ -50,7 +50,7 @@ public class TransactionService {
 			 */
 
 			if (!SQLBankAccountService.isBankAccountByIBAN(receiverIBAN)) {
-				throw new InvalidParameterException("Invalid Receiver IBAN. ");
+				throw new InvalidParamValueException("Invalid Receiver IBAN. ");
 			}
 
 			/**
@@ -58,10 +58,10 @@ public class TransactionService {
 			 */
 
 			if (amount <= 0) {
-				throw new InvalidParameterException("Amount must be positive. ");
+				throw new InvalidParamValueException("Amount must be positive. ");
 			}
 			if (SQLBankAccountService.getSaldoByIBAN(senderIBAN) < amount) {
-				throw new InvalidParameterException("Amount exceeds sender saldo. ");
+				throw new InvalidParamValueException("Amount exceeds sender saldo. ");
 			}
 
 			// All correct
@@ -71,7 +71,7 @@ public class TransactionService {
 		}
 	}
 	
-	public static ResultSet getTransactionsByIBAN(String IBAN) throws InvalidParameterException {
+	public static ResultSet getTransactionsByIBAN(String IBAN) throws InvalidParamValueException {
 		try {
 			if (SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
 				return SQLTransactionService.getTransactionsByIBAN(IBAN);
@@ -79,6 +79,6 @@ public class TransactionService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidParameterException("IBAN is invalid.");
+		throw new InvalidParamValueException("IBAN is invalid.");
 	}
 }

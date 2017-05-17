@@ -3,12 +3,12 @@ package services;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import services.exceptions.InvalidParameterException;
+import modules.exceptions.InvalidParamValueException;
+import sql.actors.SQLAccessPermissionService;
+import sql.actors.SQLBankAccountService;
+import sql.actors.SQLCustomerService;
+import sql.actors.SQLPinCardService;
 import sql.exceptions.SQLLayerException;
-import sql.services.SQLAccessPermissionService;
-import sql.services.SQLBankAccountService;
-import sql.services.SQLCustomerService;
-import sql.services.SQLPinCardService;
 
 public class PinCardService {
 
@@ -21,14 +21,14 @@ public class PinCardService {
 	 *            the card owner
 	 * @param IBAN
 	 *            the bank account
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 *             if customerID or IBAN is invalid, or the customer has no
 	 *             access permission to this account
 	 */
-	public static void addPinCard(int customerID, String IBAN) throws InvalidParameterException {
+	public static void addPinCard(int customerID, String IBAN) throws InvalidParamValueException {
 		try {
 			if (customerID <= 0 || IBAN == null) {
-				throw new InvalidParameterException("Values cannot be 0 or null.");
+				throw new InvalidParamValueException("Values cannot be 0 or null.");
 			}
 
 			/**
@@ -36,7 +36,7 @@ public class PinCardService {
 			 */
 
 			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-				throw new InvalidParameterException("IBAN is invalid. ");
+				throw new InvalidParamValueException("IBAN is invalid. ");
 			}
 
 			/**
@@ -44,7 +44,7 @@ public class PinCardService {
 			 */
 
 			if (!SQLCustomerService.isCustomerByID(customerID)) {
-				throw new InvalidParameterException("CustomerID is invalid");
+				throw new InvalidParamValueException("CustomerID is invalid");
 			}
 
 			/**
@@ -52,7 +52,7 @@ public class PinCardService {
 			 */
 
 			if (!SQLAccessPermissionService.hasPermission(customerID, IBAN)) {
-				throw new InvalidParameterException("Customer has no access permission!");
+				throw new InvalidParamValueException("Customer has no access permission!");
 			}
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
@@ -63,7 +63,7 @@ public class PinCardService {
 	
 	// GETTING
 	
-	public static ResultSet isCorrectPin(int pinCardID, int pin) throws InvalidParameterException {
+	public static ResultSet isCorrectPin(int pinCardID, int pin) throws InvalidParamValueException {
 		try {
 			if (SQLPinCardService.isCorrectPin(pinCardID, pin).next()) {
 				return SQLPinCardService.isCorrectPin(pinCardID, pin);
@@ -73,10 +73,10 @@ public class PinCardService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidParameterException("Pin is invalid.");
+		throw new InvalidParamValueException("Pin is invalid.");
 	}
 	
-	public static ResultSet getPinCardByID(int pinCardID) throws InvalidParameterException {
+	public static ResultSet getPinCardByID(int pinCardID) throws InvalidParamValueException {
 		try {
 			if (SQLPinCardService.isPinCardByPinCardID(pinCardID)) {
 				return SQLPinCardService.getPinCardByPinCardID(pinCardID);
@@ -84,7 +84,7 @@ public class PinCardService {
 		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		}
-		throw new InvalidParameterException("PinCard ID is invalid.");
+		throw new InvalidParamValueException("PinCard ID is invalid.");
 	}
 
 	// REMOVING
@@ -96,16 +96,16 @@ public class PinCardService {
 	 *            the card owner
 	 * @param IBAN
 	 *            the bank account
-	 * @throws InvalidParameterException
+	 * @throws InvalidParamValueException
 	 *             if customerID or IBAN is invalid.
 	 */
-	public static void removePinCard(int customerID, String IBAN) throws InvalidParameterException {
+	public static void removePinCard(int customerID, String IBAN) throws InvalidParamValueException {
 		try {
 			if (!SQLCustomerService.isCustomerByID(customerID)) {
-				throw new InvalidParameterException("CustomerID is invalid. ");
+				throw new InvalidParamValueException("CustomerID is invalid. ");
 			}
 			if (!SQLBankAccountService.isBankAccountByIBAN(IBAN)) {
-				throw new InvalidParameterException("IBAN is invalid. ");
+				throw new InvalidParamValueException("IBAN is invalid. ");
 			}
 			SQLPinCardService.removePinCard(customerID, IBAN);
 		} catch (SQLLayerException e) {

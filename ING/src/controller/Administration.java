@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import modules.exceptions.InvalidParamValueException;
 import services.AccessPermissionService;
 import services.BankAccountService;
 import services.CustomerService;
 import services.TransactionService;
 import services.exceptions.BankLogicException;
-import services.exceptions.InvalidParameterException;
 import view.ViewTUI;
 
 public class Administration implements Observer {
@@ -130,7 +130,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = BankAccountService.getBankAccountByIBAN(IBAN);
 					menuBaccInfo(res);
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -139,7 +139,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = BankAccountService.getBankAccountByID(Integer.parseInt(baccID));
 					menuBaccInfo(res);
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -148,7 +148,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = BankAccountService.getBankAccountsByCustomer(Integer.parseInt(ID));
 					menuBaccList(res);
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				} catch (NumberFormatException e) {
 					view.writeError("Customer ID is invalid. ---");
@@ -189,7 +189,7 @@ public class Administration implements Observer {
 					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("Owner ID or saldo format invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -234,7 +234,7 @@ public class Administration implements Observer {
 						try {
 							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
 							menuBaccInfo(bacc);
-						} catch (InvalidParameterException e) {
+						} catch (InvalidParamValueException e) {
 							e.printStackTrace();
 						}
 					} else {
@@ -261,7 +261,7 @@ public class Administration implements Observer {
 				customers.add(custInfo);
 				cust.close();
 			}
-		} catch (SQLException | InvalidParameterException e) {
+		} catch (SQLException | InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 		String[] items = new String[customers.size()];
@@ -282,7 +282,7 @@ public class Administration implements Observer {
 						try {
 							ResultSet cust = CustomerService.getCustomerByID(custIDs.get(index));
 							menuCustInfo(cust);
-						} catch (InvalidParameterException e) {
+						} catch (InvalidParamValueException e) {
 							e.printStackTrace();
 						}
 					} else {
@@ -308,7 +308,7 @@ public class Administration implements Observer {
 			try {
 				ResultSet owner = CustomerService.getCustomerByID(bacc.getInt(3));
 				ownerInfo += "[" + owner.getInt(1) + "] " + owner.getString(3) + ", " + owner.getString(2);
-			} catch (InvalidParameterException e1) {
+			} catch (InvalidParamValueException e1) {
 				e1.printStackTrace();
 			}
 
@@ -348,7 +348,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet permissions = AccessPermissionService.getPermissionsByIBAN(bacc.getString(4));
 					menuBaccPermissionList(permissions, bacc.getString(4));
-				} catch (InvalidParameterException e1) {
+				} catch (InvalidParamValueException e1) {
 					e1.printStackTrace();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
@@ -361,7 +361,7 @@ public class Administration implements Observer {
 					view.writeString("Success.");
 				} catch (NumberFormatException e1) {
 					view.writeError("Customer ID format is invalid.");
-				} catch (InvalidParameterException e1) {
+				} catch (InvalidParamValueException e1) {
 					view.writeError(e1.getMessage());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
@@ -371,7 +371,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = CustomerService.getCustomerByID(bacc.getInt(3));
 					menuCustInfo(res);
-				} catch (InvalidParameterException | SQLException e) {
+				} catch (InvalidParamValueException | SQLException e) {
 					e.printStackTrace();
 				}
 				break;
@@ -379,7 +379,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet transactions = TransactionService.getTransactionsByIBAN(bacc.getString(4));
 					menuTransList(transactions, bacc.getString(4));
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					e.printStackTrace();
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -465,7 +465,7 @@ public class Administration implements Observer {
 					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("Amount format is invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -537,7 +537,7 @@ public class Administration implements Observer {
 					menuCustInfo(res);
 				} catch (NumberFormatException e) {
 					view.writeError("Given ID is invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -548,7 +548,7 @@ public class Administration implements Observer {
 					menuCustInfo(res);
 				} catch (NumberFormatException e) {
 					view.writeError("BSN format is invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -557,7 +557,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = CustomerService.getCustomerByEmail(email);
 					menuCustInfo(res);
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -618,7 +618,7 @@ public class Administration implements Observer {
 					input = cmd + "0";
 				} catch (NumberFormatException e) {
 					view.writeError("BSN or phone number format invalid.");
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				}
 				break;
@@ -666,7 +666,7 @@ public class Administration implements Observer {
 					CustomerService.removeCustomer(customer.getInt(1));
 					view.writeString("Success.");
 					input = cmd + "0";
-				} catch (InvalidParameterException | BankLogicException e) {
+				} catch (InvalidParamValueException | BankLogicException e) {
 					view.writeError(e.getMessage());
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -676,7 +676,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet permissions = AccessPermissionService.getPermissionsByCustomer(customer.getInt(1));
 					menuCustPermissionList(permissions, customer.getInt(1));
-				} catch (InvalidParameterException e1) {
+				} catch (InvalidParamValueException e1) {
 					e1.printStackTrace();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
@@ -686,7 +686,7 @@ public class Administration implements Observer {
 				String IBAN = view.getAnswer("Enter the IBAN");
 				try {
 					AccessPermissionService.addPermission(customer.getInt(1), IBAN);
-				} catch (InvalidParameterException e1) {
+				} catch (InvalidParamValueException e1) {
 					view.writeError(e1.getMessage());
 					e1.printStackTrace();
 				} catch (SQLException e1) {
@@ -697,7 +697,7 @@ public class Administration implements Observer {
 				try {
 					ResultSet res = BankAccountService.getBankAccountsByCustomer(customer.getInt(1));
 					menuBaccList(res);
-				} catch (InvalidParameterException e) {
+				} catch (InvalidParamValueException e) {
 					view.writeError(e.getMessage());
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -725,7 +725,7 @@ public class Administration implements Observer {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (InvalidParameterException e) {
+		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
 		String[] items = new String[baccs.size()];
@@ -747,7 +747,7 @@ public class Administration implements Observer {
 						try {
 							ResultSet bacc = BankAccountService.getBankAccountByID(baccIDs.get(index));
 							menuBaccInfo(bacc);
-						} catch (InvalidParameterException e) {
+						} catch (InvalidParamValueException e) {
 							e.printStackTrace();
 						}
 					} else {

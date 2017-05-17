@@ -1,7 +1,7 @@
 package sql.test;
 
+import sql.actors.SQLAccessPermissionService;
 import sql.exceptions.SQLLayerException;
-import sql.services.SQLAccessPermissionService;
 
 public class AccessPermissionTest {
 

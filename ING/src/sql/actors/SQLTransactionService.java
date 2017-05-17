@@ -1,4 +1,4 @@
-package sql.services;
+package sql.actors;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
 package sql.exceptions;
 
-import services.exceptions.InvalidParameterException;
+import modules.exceptions.InvalidParamValueException;
 
-public class InvalidParameterTypeException extends InvalidParameterException {
+public class InvalidParameterTypeException extends InvalidParamValueException {
 
 	/**
 	 * 

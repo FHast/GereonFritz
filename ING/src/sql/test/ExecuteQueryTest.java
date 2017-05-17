@@ -3,9 +3,9 @@ package sql.test;
 import java.sql.SQLException;
 
 import sql.SQLExecute;
+import sql.actors.SQLCustomerService;
 import sql.exceptions.InvalidParameterTypeException;
 import sql.exceptions.SQLLayerException;
-import sql.services.SQLCustomerService;
 
 public class ExecuteQueryTest {
 	public static void main(String[] args) {
