@@ -30,6 +30,7 @@ public class Peer {
 		JSONRPC2Error resultError = null;
 		String resultString = "";
 		Map<String,Object> resultMap = null;
+		Boolean resultBoolean = null;
 		
 		switch (method) {
 		case "openAccount":
@@ -55,6 +56,17 @@ public class Peer {
 			}
 			break;
 		case "closeAccount":
+			try {
+				resultBoolean = AccountModule.closeAccount(params);
+			} catch(InvalidParamsException e) {
+				resultError = new JSONRPC2Error(-32602, e.getMessage());
+			} catch(NotAuthenticatedException e) {
+				resultError = new JSONRPC2Error(419, e.getMessage());
+			} catch(OtherRpcException e) {
+				resultError = new JSONRPC2Error(500, e.getMessage());
+			} catch(InvalidParamValueException e) {
+				resultError = new JSONRPC2Error(418, e.getMessage());
+			}
 			break;
 		case "provideAccess":
 			break;
@@ -94,6 +106,8 @@ public class Peer {
 		// Checks, which type of response will be sent.
 		if (resultError != null) {
 			return new JSONRPC2Response(resultError, id).toString();			
+		} else if (resultBoolean != null) {
+			return new JSONRPC2Response(resultBoolean, id).toString();
 		} else if (!resultString.equals("")) {
 			return new JSONRPC2Response(resultString, id).toString();
 		}
