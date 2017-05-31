@@ -23,7 +23,7 @@ public class AuthenticationModule {
 		new Thread(new ExpiryChecker()).run();
 	}
 
-	public String getAuthToken(Map<String, Object> params)
+	public static String getAuthToken(Map<String, Object> params)
 			throws InvalidParamValueException, InvalidParamsException, AuthenticationException, OtherRpcException {
 		if (params == null || params.size() != 2) {
 			throw new InvalidParamsException("Either no or not enough params given.");
