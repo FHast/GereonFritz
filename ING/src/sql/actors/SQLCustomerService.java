@@ -25,13 +25,14 @@ public class SQLCustomerService {
 	 * @param address
 	 * @param phone
 	 * @param email
-	 * @throws SQLLayerException 
+	 * @throws SQLLayerException
 	 */
 	public static void addCustomer(Map<String, Object> params) throws SQLLayerException {
 		Object[] parameters = new Object[] { null, params.get("name"), params.get("surname"), params.get("initials"),
-				params.get("dob"), params.get("ssn"), params.get("address"), params.get("phone"), params.get("email") };
+				params.get("dob"), params.get("ssn"), params.get("address"), params.get("phone"), params.get("email"),
+				params.get("username"), params.get("password") };
 		try {
-			SQLExecute.execute("INSERT INTO CustomerAccounts values(?,?,?,?,?,?,?,?,?)", parameters);
+			SQLExecute.execute("INSERT INTO CustomerAccounts values(?,?,?,?,?,?,?,?,?,?,?)", parameters);
 		} catch (SQLException e) {
 			throw new SQLLayerException();
 		} catch (InvalidParameterTypeException e) {
@@ -55,6 +56,18 @@ public class SQLCustomerService {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Name=? AND Surname=?",
 					new Object[] { name, surname });
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+
+	public static ResultSet getCustomerByUsername(String username) throws SQLLayerException {
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Username=?",
+					new Object[] { username });
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InvalidParameterTypeException e) {

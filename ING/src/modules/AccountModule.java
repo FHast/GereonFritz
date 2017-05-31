@@ -1,18 +1,26 @@
 package modules;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import modules.exceptions.InvalidParamValueException;
 import modules.exceptions.InvalidParamsException;
+import modules.exceptions.NotAuthenticatedException;
 import modules.exceptions.OtherRpcException;
+import modules.security.HashService;
+import sql.actors.SQLBankAccountService;
 import sql.actors.SQLCustomerService;
+import sql.actors.SQLPinCardService;
 import sql.exceptions.SQLLayerException;
 
 public class AccountModule {
-	public static void openAccount(Map<String, Object> params) throws InvalidParamsException, InvalidParamValueException, OtherRpcException {
+	public static Map<String, Object> openAccount(Map<String, Object> params)
+			throws InvalidParamsException, InvalidParamValueException, OtherRpcException {
 		// Check params
-		if (params == null) {
-			throw new InvalidParamsException("No params given.");
+		if (params == null || params.size() != 10) {
+			throw new InvalidParamsException("Either no or not enough params given.");
 		}
 
 		/**
@@ -87,7 +95,7 @@ public class AccountModule {
 		/**
 		 * Check Phone: not <= 0 ; at least 9 digits
 		 */
-		String phoneString = (String) params.get("phone");
+		String phoneString = (String) params.get("telephoneNumber");
 		if (phoneString == null) {
 			throw new InvalidParamValueException("phoneString must not be null");
 		}
@@ -115,12 +123,107 @@ public class AccountModule {
 		} else if (!email.contains(".")) {
 			throw new InvalidParamValueException("Email seems invalid, must contain '.'");
 		}
-		
+
+		/**
+		 * Check username: not empty
+		 */
+		String username = (String) params.get("username");
+		if (username == null || username.equals("")) {
+			throw new InvalidParamValueException("Name must not be empty or null");
+		}
+
+		/**
+		 * Check password: not empty
+		 */
+		String password = (String) params.get("password");
+		if (password == null || password.equals("")) {
+			throw new InvalidParamValueException("Name must not be empty or null");
+		}
+		params.put("password", HashService.hash(password));
+
 		// Add to database
 		try {
 			SQLCustomerService.addCustomer(params);
-		} catch (SQLLayerException e) {
+			int custID = SQLCustomerService.getCustomerByEmail(email).getInt(1);
+			String iban = SQLBankAccountService.addBankAccount(custID, 0);
+			ResultSet pincard = SQLPinCardService.getPinCardByIBAN(iban);
+			int cardID = pincard.getInt(1);
+			int cardPin = pincard.getInt(3);
+			Map<String, Object> res = new HashMap<>();
+			res.put("iBAN", iban);
+			res.put("pinCard", cardID);
+			res.put("cardPin", cardPin);
+			return res;
+		} catch (SQLLayerException | SQLException e) {
 			throw new OtherRpcException("SQLlayerException");
 		}
+	}
+
+	public static Map<String, Object> openAdditionalAccount(Map<String, Object> params)
+			throws InvalidParamsException, NotAuthenticatedException, OtherRpcException {
+		if (params == null || params.size() != 1) {
+			throw new InvalidParamsException("Either no or not enough params given.");
+		}
+
+		/**
+		 * Check token
+		 */
+		String token = (String) params.get("authToken");
+		String username = AuthenticationModule.checkToken(token);
+
+		try {
+			ResultSet cust = SQLCustomerService.getCustomerByUsername(username);
+			int custID = cust.getInt(cust.findColumn("CustomerID"));
+			String iban = SQLBankAccountService.addBankAccount(custID, 0);
+			ResultSet pincard = SQLPinCardService.getPinCardByIBAN(iban);
+			int cardID = pincard.getInt(1);
+			int cardPin = pincard.getInt(3);
+			Map<String, Object> res = new HashMap<>();
+			res.put("iBAN", iban);
+			res.put("pinCard", cardID);
+			res.put("cardPin", cardPin);
+			return res;
+		} catch (SQLLayerException | SQLException e) {
+			throw new OtherRpcException("SQLlayerException");
+		}
+	}
+
+	public static boolean closeAccount(Map<String, Object> params)
+			throws NotAuthenticatedException, InvalidParamsException, OtherRpcException, InvalidParamValueException {
+		if (params == null || params.size() != 1) {
+			throw new InvalidParamsException("Either no or not enough params given.");
+		}
+
+		/**
+		 * Check token
+		 */
+		String token = (String) params.get("authToken");
+		String username = AuthenticationModule.checkToken(token);
+
+		/**
+		 * Check IBAN
+		 */
+		String iban = (String) params.get("iBAN");
+		if (username == null || username.equals("")) {
+			throw new InvalidParamValueException("Iban must not be empty or null");
+		}
+
+		try {
+			ResultSet cust = SQLCustomerService.getCustomerByUsername(username);
+			int custID = cust.getInt(cust.findColumn("CustomerID"));
+			SQLBankAccountService.removeBankAccount(iban); // TODO not empty
+															// accounts
+
+			// Check customer
+
+			if (!SQLBankAccountService.hasBankAccounts(custID)) {
+				SQLCustomerService.removeCustomer(custID);
+			}
+
+			return true;
+		} catch (SQLLayerException | SQLException e) {
+			throw new OtherRpcException("SQLlayerException");
+		}
+
 	}
 }

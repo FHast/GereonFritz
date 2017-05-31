@@ -1,6 +1,6 @@
 package modules.exceptions;
 
-public class InvalidParamValueException extends Exception {
+public class InvalidParamValueException extends JsonRpcException {
 
 	/**
 	 * 

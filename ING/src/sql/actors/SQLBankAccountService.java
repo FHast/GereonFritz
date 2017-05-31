@@ -28,11 +28,12 @@ public class SQLBankAccountService {
 	 *            the initial capital.
 	 * @throws SQLLayerException
 	 */
-	public static int addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
+	public static String addBankAccount(int mainCustomer, double startsaldo) throws SQLLayerException {
 
 		int bankAccountNumber = -1;
 		try {
-			ResultSet bankAccounts = SQLExecute.executeQuery("SELECT MAX(BankAccountID) FROM BankAccounts");
+			ResultSet bankAccounts = SQLExecute
+					.executeQuery("SELECT seq FROM sqlite_sequence WHERE name = BankAccounts");
 			bankAccountNumber = bankAccounts.getInt(1) + 1;
 
 			String IBAN = COUNTRY + BLZ;
@@ -59,9 +60,9 @@ public class SQLBankAccountService {
 			}
 
 			SQLExecute.execute("INSERT INTO BankAccounts VALUES(?,?,?,?)",
-					new Object[] { bankAccountNumber, startsaldo, mainCustomer, IBAN });
+					new Object[] { IBAN, startsaldo, mainCustomer });
 			AccessPermissionService.addPermission(mainCustomer, IBAN);
-
+			return IBAN;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -69,30 +70,10 @@ public class SQLBankAccountService {
 		} catch (InvalidParamValueException e) {
 			e.printStackTrace();
 		}
-		return bankAccountNumber;
+		throw new SQLLayerException();
 	}
 
 	// GETIING
-
-	/**
-	 * Returns all bank accounts a customer owns.
-	 * 
-	 * @param maincustomer
-	 *            the customer
-	 * @return ResultSet of all bank accounts
-	 * @throws SQLLayerException
-	 */
-	public static ResultSet getBankAccounts(int maincustomer) throws SQLLayerException {
-		try {
-			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
-					new Object[] { maincustomer });
-		} catch (InvalidParameterTypeException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		throw new SQLLayerException();
-	}
 
 	/**
 	 * Returns the bank account which has the given IBAN.
@@ -114,12 +95,11 @@ public class SQLBankAccountService {
 		}
 		throw new SQLLayerException();
 	}
-	
-	
-	public static ResultSet getBankAccountByID(int ID) throws SQLLayerException {
+
+	public static ResultSet getBankAccountsByCustomer(int customerID) throws SQLLayerException {
 		try {
-			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE BankAccountID = ?",
-					new Object[] { ID });
+			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
+					new Object[] { customerID });
 			return bankacc;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -128,13 +108,13 @@ public class SQLBankAccountService {
 		}
 		throw new SQLLayerException();
 	}
-	
-	public static ResultSet getBankAccountsByCustomer(int customerID) throws SQLLayerException {
+
+	public static boolean hasBankAccounts(int customerID) throws SQLLayerException {
+
 		try {
-			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE MainCustomerID = ?",
-					new Object[] { customerID });
-			return bankacc;
-		} catch (InvalidParameterTypeException e) {
+			ResultSet res = getBankAccountsByCustomer(customerID);
+			return res.next();
+		} catch (SQLLayerException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -153,20 +133,6 @@ public class SQLBankAccountService {
 	public static boolean isBankAccountByIBAN(String IBAN) throws SQLLayerException {
 		try {
 			ResultSet res = getBankAccountByIBAN(IBAN);
-			if (!res.next()) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		throw new SQLLayerException();
-	}
-	
-	public static boolean isBankAccountByID(int ID) throws SQLLayerException {
-		try {
-			ResultSet res = getBankAccountByID(ID);
 			if (!res.next()) {
 				return false;
 			} else {
@@ -197,26 +163,6 @@ public class SQLBankAccountService {
 		throw new SQLLayerException();
 	}
 
-	/**
-	 * Returns the identifier of a bank account connected to a given IBAN.
-	 * 
-	 * @param IBAN
-	 *            the IBAN
-	 * @return the bank account ID connected to this IBAN
-	 * @throws SQLLayerException
-	 */
-	public static int getIDforIBAN(String IBAN) throws SQLLayerException {
-		ResultSet res = getBankAccountByIBAN(IBAN);
-		try {
-			if (res.next()) {
-				return res.getInt(1);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		throw new SQLLayerException();
-	}
-
 	// REMOVING
 
 	/**
@@ -226,7 +172,7 @@ public class SQLBankAccountService {
 	 * @param IBAN
 	 *            the bank account
 	 */
-	public static void removeBankAccountByIBAN(String IBAN) {
+	public static void removeBankAccount(String IBAN) {
 		try {
 			SQLExecute.execute("DELETE FROM BankAccounts WHERE IBAN = ?", new Object[] { IBAN });
 		} catch (SQLException e) {
@@ -248,7 +194,7 @@ public class SQLBankAccountService {
 	 */
 	public static void removeBankAccounts(int customerID) throws BankLogicException, SQLLayerException {
 		try {
-			ResultSet baccs = SQLBankAccountService.getBankAccounts(customerID);
+			ResultSet baccs = SQLBankAccountService.getBankAccountsByCustomer(customerID);
 			while (baccs.next()) {
 				BankAccountService.removeBankAccount(baccs.getString(4));
 			}

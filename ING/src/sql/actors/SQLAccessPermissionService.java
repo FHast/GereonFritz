@@ -25,8 +25,7 @@ public class SQLAccessPermissionService {
 	 */
 	public static void addPermission(int customerID, String IBAN) throws SQLLayerException {
 		try {
-			int bankID = SQLBankAccountService.getIDforIBAN(IBAN);
-			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, bankID });
+			SQLExecute.execute("INSERT INTO AccessPermissions VALUES(?,?)", new Object[] { customerID, IBAN });
 			PinCardService.addPinCard(customerID, IBAN);
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -58,12 +57,10 @@ public class SQLAccessPermissionService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	public static ResultSet getPermissionsByIBAN(String IBAN) throws SQLLayerException {
-		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			return SQLExecute.executeQuery("SELECT * FROM AccessPermissions WHERE BankAccountID = ?",
-					new Object[] { ID });
+			return SQLExecute.executeQuery("SELECT * FROM AccessPermissions WHERE IBAN = ?", new Object[] { IBAN });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -110,9 +107,8 @@ public class SQLAccessPermissionService {
 	 * @throws SQLLayerException
 	 */
 	public static void removePermissions(String IBAN) throws SQLLayerException {
-		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ?", new Object[] { ID });
+			SQLExecute.execute("DELETE FROM AccessPermissions IBAN = ?", new Object[] { IBAN });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -128,7 +124,6 @@ public class SQLAccessPermissionService {
 	 */
 	public static void removePermissions(int customerID) {
 		try {
-			SQLPinCardService.removePinCards(customerID);
 			SQLExecute.execute("DELETE FROM AccessPermissions WHERE CustomerID = ?", new Object[] { customerID });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -147,10 +142,9 @@ public class SQLAccessPermissionService {
 	 * @throws SQLLayerException
 	 */
 	public static void removePermission(int customerID, String IBAN) throws SQLLayerException {
-		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLExecute.execute("DELETE FROM AccessPermissions WHERE BankAccountID = ? AND CustomerID = ?",
-					new Object[] { ID, customerID });
+			SQLExecute.execute("DELETE FROM AccessPermissions WHERE IBAN = ? AND CustomerID = ?",
+					new Object[] { IBAN, customerID });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

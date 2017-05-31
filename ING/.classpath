@@ -5,5 +5,10 @@
 	<classpathentry kind="lib" path="sqlite-jdbc-3.16.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="jsonrpc2-base-1.31.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.10/commons-codec-1.10-javadoc.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.10/commons-codec-1.10-sources.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.10/commons-codec-1.10-test-sources.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.10/commons-codec-1.10-tests.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.10/commons-codec-1.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

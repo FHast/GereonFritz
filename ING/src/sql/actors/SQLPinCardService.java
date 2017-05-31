@@ -24,16 +24,13 @@ public class SQLPinCardService {
 	 */
 	public static void addPinCard(int customerID, String IBAN) {
 		try {
-			ResultSet bankacc = SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN = ?",
-					new Object[] { IBAN });
-
 			LocalDateTime currentTime = LocalDateTime.now();
 			String date = currentTime.toLocalDate().plusYears(VALID_FOR_YEARS).toString();
 			String pin = "" + (int) (Math.random() * 10) + "" + (int) (Math.random() * 10) + ""
 					+ (int) (Math.random() * 10) + "" + (int) (Math.random() * 10);
 
 			SQLExecute.execute("INSERT INTO PinCards VALUES(?,?,?,?,?)",
-					new Object[] { null, date, pin, customerID, bankacc.getInt(1) });
+					new Object[] { null, date, pin, customerID, IBAN });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -55,6 +52,19 @@ public class SQLPinCardService {
 		try {
 			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE PinCardID = ?",
 					new Object[] { pinCardID });
+			return pinCard;
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+	
+	public static ResultSet getPinCardByIBAN(String iban) throws SQLLayerException {
+		try {
+			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE iban = ?",
+					new Object[] { iban });
 			return pinCard;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -133,9 +143,8 @@ public class SQLPinCardService {
 	 * @throws SQLLayerException
 	 */
 	public static void removePinCards(String IBAN) throws SQLLayerException {
-		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLExecute.execute("DELETE FROM PinCards WHERE BankAccountID = ?", new Object[] { ID });
+			SQLExecute.execute("DELETE FROM PinCards WHERE IBAN = ?", new Object[] { IBAN });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -153,10 +162,9 @@ public class SQLPinCardService {
 	 * @throws SQLLayerException
 	 */
 	public static void removePinCard(int customerID, String IBAN) throws SQLLayerException {
-		int ID = SQLBankAccountService.getIDforIBAN(IBAN);
 		try {
-			SQLExecute.execute("DELETE FROM PinCards WHERE BankAccountID = ? AND CustomerID = ?",
-					new Object[] { ID, customerID });
+			SQLExecute.execute("DELETE FROM PinCards WHERE IBAN = ? AND CustomerID = ?",
+					new Object[] { IBAN, customerID });
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

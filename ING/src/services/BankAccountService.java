@@ -110,7 +110,7 @@ public class BankAccountService {
 				if (SQLBankAccountService.getSaldoByIBAN(IBAN) > 0) {
 					throw new BankLogicException("Saldo of bankaccount not 0. IBAN: " + IBAN);
 				} else {
-					SQLBankAccountService.removeBankAccountByIBAN(IBAN);
+					SQLBankAccountService.removeBankAccount(IBAN);
 				}
 			}
 		} catch (SQLLayerException e) {
