@@ -42,28 +42,6 @@ public class SQLCustomerService {
 
 	// GETTING
 
-	/**
-	 * Returns all customers having the given name.
-	 * 
-	 * @param name
-	 *            first name
-	 * @param surname
-	 *            last name / family name
-	 * @return ResultSet of all customers having this name
-	 * @throws SQLLayerException
-	 */
-	public static ResultSet getCustomerByName(String name, String surname) throws SQLLayerException {
-		try {
-			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Name=? AND Surname=?",
-					new Object[] { name, surname });
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (InvalidParameterTypeException e) {
-			e.printStackTrace();
-		}
-		throw new SQLLayerException();
-	}
-
 	public static ResultSet getCustomerByUsername(String username) throws SQLLayerException {
 		try {
 			return SQLExecute.executeQuery("SELECT * FROM CustomerAccounts WHERE Username=?",
@@ -127,28 +105,6 @@ public class SQLCustomerService {
 	}
 
 	/**
-	 * Checks whether there is a customer with this BSN.
-	 * 
-	 * @param BSN
-	 *            the BSN
-	 * @return true if there is a customer with this BSN
-	 * @throws SQLLayerException
-	 */
-	public static boolean isCustomerByBSN(int BSN) throws SQLLayerException {
-		try {
-			ResultSet res = getCustomerByBSN(BSN);
-			if (!res.next()) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		throw new SQLLayerException();
-	}
-
-	/**
 	 * Checks if there is a customer with this ID.
 	 * 
 	 * @param ID
@@ -158,26 +114,16 @@ public class SQLCustomerService {
 	 */
 	public static boolean isCustomerByID(int ID) throws SQLLayerException {
 		try {
-			ResultSet res = getCustomerByID(ID);
-			if (!res.next()) {
-				return false;
-			} else {
-				return true;
-			}
+			return getCustomerByID(ID).next();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		throw new SQLLayerException();
 	}
 
-	public static boolean isCustomerByEmail(String email) throws SQLLayerException {
+	public static boolean isCustomerByUsername(String username) throws SQLLayerException {
 		try {
-			ResultSet res = getCustomerByEmail(email);
-			if (!res.next()) {
-				return false;
-			} else {
-				return true;
-			}
+			return getCustomerByUsername(username).next();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

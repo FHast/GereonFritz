@@ -122,6 +122,18 @@ public class SQLBankAccountService {
 		throw new SQLLayerException();
 	}
 
+	public static boolean isOwner(int customerID, String iban) throws SQLLayerException {
+		try {
+			return SQLExecute.executeQuery("SELECT * FROM BankAccounts WHERE IBAN=? AND MainCustomerID=?",
+					new Object[] { iban, customerID }).next();
+		} catch (InvalidParameterTypeException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		throw new SQLLayerException();
+	}
+
 	/**
 	 * Checks whether this IBAN is valid or not.
 	 * 

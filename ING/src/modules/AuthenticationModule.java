@@ -25,27 +25,30 @@ public class AuthenticationModule {
 
 	public static String getAuthToken(Map<String, Object> params)
 			throws InvalidParamValueException, InvalidParamsException, AuthenticationException, OtherRpcException {
-		if (params == null || params.size() != 2) {
-			throw new InvalidParamsException("Either no or not enough params given.");
-		}
-
-		/**
-		 * Check name: not empty
-		 */
-		String username = (String) params.get("username");
-		if (username == null || username.equals("")) {
-			throw new InvalidParamValueException("Name must not be empty or null");
-		}
-
-		/**
-		 * Check password: not empty
-		 */
-		String password = (String) params.get("password");
-		if (password == null || password.equals("")) {
-			throw new InvalidParamValueException("Name must not be empty or null");
-		}
-
 		try {
+			if (params == null || params.size() != 2) {
+				throw new InvalidParamsException("Either no or not enough params given.");
+			}
+
+			/**
+			 * Check name: not empty
+			 */
+			String username = (String) params.get("username");
+			if (username == null || username.equals("")) {
+				throw new InvalidParamValueException("Name must not be empty or null");
+			}
+			if (!SQLCustomerService.isCustomerByUsername(username)) {
+				throw new InvalidParamValueException("Username not valid.");
+			}
+
+			/**
+			 * Check password: not empty
+			 */
+			String password = (String) params.get("password");
+			if (password == null || password.equals("")) {
+				throw new InvalidParamValueException("Name must not be empty or null");
+			}
+
 			ResultSet cust = SQLCustomerService.getCustomerByUsername(username);
 			String storedPass = cust.getString(cust.findColumn("Password"));
 			String storedSalt = storedPass.split(":")[1];

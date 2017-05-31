@@ -146,13 +146,15 @@ public class AccountModule {
 			SQLCustomerService.addCustomer(params);
 			int custID = SQLCustomerService.getCustomerByEmail(email).getInt(1);
 			String iban = SQLBankAccountService.addBankAccount(custID, 0);
+			// get pincard info
 			ResultSet pincard = SQLPinCardService.getPinCardByIBAN(iban);
-			int cardID = pincard.getInt(1);
-			int cardPin = pincard.getInt(3);
+			int cardPin = pincard.getInt(pincard.findColumn("PIN"));
+			int cardID = pincard.getInt(pincard.findColumn("PinCardID"));
+			// write result
 			Map<String, Object> res = new HashMap<>();
 			res.put("iBAN", iban);
 			res.put("pinCard", cardID);
-			res.put("cardPin", cardPin);
+			res.put("pinCode", cardPin);
 			return res;
 		} catch (SQLLayerException | SQLException e) {
 			throw new OtherRpcException("SQLlayerException");
@@ -174,14 +176,14 @@ public class AccountModule {
 		try {
 			ResultSet cust = SQLCustomerService.getCustomerByUsername(username);
 			int custID = cust.getInt(cust.findColumn("CustomerID"));
-			String iban = SQLBankAccountService.addBankAccount(custID, 0);
+			String iban = SQLBankAccountService.addBankAccount(custID, 0.0);
 			ResultSet pincard = SQLPinCardService.getPinCardByIBAN(iban);
-			int cardID = pincard.getInt(1);
-			int cardPin = pincard.getInt(3);
+			int cardPin = pincard.getInt(pincard.findColumn("PIN"));
+			int cardID = pincard.getInt(pincard.findColumn("PinCardID"));
 			Map<String, Object> res = new HashMap<>();
 			res.put("iBAN", iban);
 			res.put("pinCard", cardID);
-			res.put("cardPin", cardPin);
+			res.put("pinCode", cardPin);
 			return res;
 		} catch (SQLLayerException | SQLException e) {
 			throw new OtherRpcException("SQLlayerException");
@@ -190,32 +192,40 @@ public class AccountModule {
 
 	public static boolean closeAccount(Map<String, Object> params)
 			throws NotAuthenticatedException, InvalidParamsException, OtherRpcException, InvalidParamValueException {
-		if (params == null || params.size() != 1) {
-			throw new InvalidParamsException("Either no or not enough params given.");
-		}
-
-		/**
-		 * Check token
-		 */
-		String token = (String) params.get("authToken");
-		String username = AuthenticationModule.checkToken(token);
-
-		/**
-		 * Check IBAN
-		 */
-		String iban = (String) params.get("iBAN");
-		if (username == null || username.equals("")) {
-			throw new InvalidParamValueException("Iban must not be empty or null");
-		}
-
 		try {
+			if (params == null || params.size() != 2) {
+				throw new InvalidParamsException("Either no or not enough params given.");
+			}
+
+			/**
+			 * Check token
+			 */
+			String token = (String) params.get("authToken");
+			String username = AuthenticationModule.checkToken(token);
+
+			/**
+			 * Check IBAN
+			 */
+			String iban = (String) params.get("iBAN");
+			if (iban == null || iban.equals("")) {
+				throw new InvalidParamValueException("Iban must not be empty or null");
+			}
+			if (!SQLBankAccountService.isBankAccountByIBAN(iban)) {
+				throw new InvalidParamValueException("Invalid iBAN");
+			}
+
+			// Get customer id
 			ResultSet cust = SQLCustomerService.getCustomerByUsername(username);
 			int custID = cust.getInt(cust.findColumn("CustomerID"));
-			SQLBankAccountService.removeBankAccount(iban); // TODO not empty
-															// accounts
+			// Check if customer has delete permissions.
+			if (!SQLBankAccountService.isOwner(custID, iban)) {
+				throw new NotAuthenticatedException("You are not the owner of this bank account.");
+			}
 
-			// Check customer
+			SQLBankAccountService.removeBankAccount(iban);
+			// TODO what about not empty accounts?
 
+			// Delete customer if no more bank accounts.
 			if (!SQLBankAccountService.hasBankAccounts(custID)) {
 				SQLCustomerService.removeCustomer(custID);
 			}
