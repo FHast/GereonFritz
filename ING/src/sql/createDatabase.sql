@@ -24,6 +24,8 @@ CREATE TABLE "CustomerAccounts" (
 	Address	TEXT NOT NULL,
 	Phone INTEGER NOT NULL,
 	Email TEXT NOT NULL UNIQUE
+	Username TEXT NOT NULL UNIQUE
+	Password TEXT NOT NULL
 );
 DROP TABLE IF EXISTS "PinCards";
 CREATE TABLE "PinCards" ( 
