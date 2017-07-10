@@ -8,7 +8,7 @@ import java.util.Map;
 import modules.exceptions.InvalidParamValueException;
 import modules.exceptions.InvalidParamsException;
 import modules.exceptions.NoEffectException;
-import modules.exceptions.NotAuthenticatedException;
+import modules.exceptions.NotAutorizedException;
 import modules.exceptions.OtherRpcException;
 import sql.actors.SQLAccessPermissionService;
 import sql.actors.SQLBankAccountService;
@@ -17,7 +17,7 @@ import sql.actors.SQLPinCardService;
 import sql.exceptions.SQLLayerException;
 
 public class AccessModule {
-	public static Map<String, Object> provideAccess(Map<String, Object> params) throws NotAuthenticatedException,
+	public static Map<String, Object> provideAccess(Map<String, Object> params) throws NotAutorizedException,
 			InvalidParamValueException, InvalidParamsException, OtherRpcException, NoEffectException {
 		try {
 			if (params == null || params.size() != 3) {
@@ -80,7 +80,7 @@ public class AccessModule {
 	}
 
 	public static boolean revokeAccess(Map<String, Object> params) throws InvalidParamsException,
-			NotAuthenticatedException, InvalidParamValueException, NoEffectException, OtherRpcException {
+			NotAutorizedException, InvalidParamValueException, NoEffectException, OtherRpcException {
 		try {
 			if (params == null || params.size() != 3) {
 				throw new InvalidParamsException("Either no or not enough params given.");

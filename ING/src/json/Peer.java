@@ -12,7 +12,7 @@ import modules.AuthenticationModule;
 import modules.exceptions.AuthenticationException;
 import modules.exceptions.InvalidParamValueException;
 import modules.exceptions.InvalidParamsException;
-import modules.exceptions.NotAuthenticatedException;
+import modules.exceptions.NotAutorizedException;
 import modules.exceptions.OtherRpcException;
 
 public class Peer {
@@ -49,7 +49,7 @@ public class Peer {
 				resultMap = AccountModule.openAdditionalAccount(params);
 			} catch(InvalidParamsException e) {
 				resultError = new JSONRPC2Error(-32602, e.getMessage());
-			} catch(NotAuthenticatedException e) {
+			} catch(NotAutorizedException e) {
 				resultError = new JSONRPC2Error(419, e.getMessage());
 			} catch(OtherRpcException e) {
 				resultError = new JSONRPC2Error(500, e.getMessage());
@@ -60,7 +60,7 @@ public class Peer {
 				resultBoolean = AccountModule.closeAccount(params);
 			} catch(InvalidParamsException e) {
 				resultError = new JSONRPC2Error(-32602, e.getMessage());
-			} catch(NotAuthenticatedException e) {
+			} catch(NotAutorizedException e) {
 				resultError = new JSONRPC2Error(419, e.getMessage());
 			} catch(OtherRpcException e) {
 				resultError = new JSONRPC2Error(500, e.getMessage());

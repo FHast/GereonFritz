@@ -10,7 +10,7 @@ import java.util.Map;
 import modules.exceptions.AuthenticationException;
 import modules.exceptions.InvalidParamValueException;
 import modules.exceptions.InvalidParamsException;
-import modules.exceptions.NotAuthenticatedException;
+import modules.exceptions.NotAutorizedException;
 import modules.exceptions.OtherRpcException;
 import modules.security.HashService;
 import modules.security.Session;
@@ -80,14 +80,14 @@ public class AuthenticationModule {
 		return token;
 	}
 
-	public static String checkToken(String token) throws NotAuthenticatedException {
+	public static String checkToken(String token) throws NotAutorizedException {
 		for (Session s : sessions) {
 			if (s.getToken().equals(token)) {
 				s.resetExpirationDate();
 				return s.getUsername();
 			}
 		}
-		throw new NotAuthenticatedException("Token is invalid.");
+		throw new NotAutorizedException("Token is invalid.");
 	}
 
 	private static class ExpiryChecker implements Runnable {

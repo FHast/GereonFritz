@@ -78,7 +78,7 @@ public class PinCardService {
 	
 	public static ResultSet getPinCardByID(int pinCardID) throws InvalidParamValueException {
 		try {
-			if (SQLPinCardService.isPinCardByPinCardID(pinCardID)) {
+			if (SQLPinCardService.isPinCard(pinCardID)) {
 				return SQLPinCardService.getPinCardByPinCardID(pinCardID);
 			}
 		} catch (SQLLayerException e) {

@@ -1,8 +1,8 @@
 package modules.exceptions;
 
-public class NotAuthenticatedException extends JsonRpcException {
+public class NotAutorizedException extends JsonRpcException {
 
-	public NotAuthenticatedException(String s) {
+	public NotAutorizedException(String s) {
 		super(s);
 	}
 

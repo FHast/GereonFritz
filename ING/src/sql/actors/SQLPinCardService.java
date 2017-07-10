@@ -37,9 +37,9 @@ public class SQLPinCardService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// GETTING
-	
+
 	/**
 	 * Returns the PinCard which has the given PinCard Id.
 	 * 
@@ -60,11 +60,10 @@ public class SQLPinCardService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	public static ResultSet getPinCardByIBAN(String iban) throws SQLLayerException {
 		try {
-			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE iban = ?",
-					new Object[] { iban });
+			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE iban = ?", new Object[] { iban });
 			return pinCard;
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
@@ -73,7 +72,7 @@ public class SQLPinCardService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	/**
 	 * Checks whether this PinCard Id is valid or not.
 	 * 
@@ -82,7 +81,7 @@ public class SQLPinCardService {
 	 * @return true if a PinCard exists with this PinCardID, otherwise false
 	 * @throws SQLLayerException
 	 */
-	public static boolean isPinCardByPinCardID(int pinCardID) throws SQLLayerException {
+	public static boolean isPinCard(int pinCardID) throws SQLLayerException {
 		try {
 			ResultSet res = getPinCardByPinCardID(pinCardID);
 			if (!res.next()) {
@@ -95,7 +94,7 @@ public class SQLPinCardService {
 		}
 		throw new SQLLayerException();
 	}
-	
+
 	/**
 	 * Returns the PinCard which if the Pin is correct.
 	 * 
@@ -104,11 +103,11 @@ public class SQLPinCardService {
 	 * @return ResultSet containing the PinCard information
 	 * @throws SQLLayerException
 	 */
-	public static ResultSet isCorrectPin(int pinCardID, int pin) throws SQLLayerException {
+	public static boolean isCorrectPin(int pinCardID, int pin) throws SQLLayerException { // TODO sql injection
 		try {
 			ResultSet pinCard = SQLExecute.executeQuery("SELECT * FROM PinCards WHERE PinCardID = ? AND PIN = ?",
 					new Object[] { pinCardID, pin });
-			return pinCard;
+			return pinCard.next();
 		} catch (InvalidParameterTypeException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

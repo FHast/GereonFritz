@@ -7,7 +7,7 @@ import java.util.Map;
 
 import modules.exceptions.InvalidParamValueException;
 import modules.exceptions.InvalidParamsException;
-import modules.exceptions.NotAuthenticatedException;
+import modules.exceptions.NotAutorizedException;
 import modules.exceptions.OtherRpcException;
 import modules.security.HashService;
 import sql.actors.SQLBankAccountService;
@@ -162,7 +162,7 @@ public class AccountModule {
 	}
 
 	public static Map<String, Object> openAdditionalAccount(Map<String, Object> params)
-			throws InvalidParamsException, NotAuthenticatedException, OtherRpcException {
+			throws InvalidParamsException, NotAutorizedException, OtherRpcException {
 		if (params == null || params.size() != 1) {
 			throw new InvalidParamsException("Either no or not enough params given.");
 		}
@@ -191,7 +191,7 @@ public class AccountModule {
 	}
 
 	public static boolean closeAccount(Map<String, Object> params)
-			throws NotAuthenticatedException, InvalidParamsException, OtherRpcException, InvalidParamValueException {
+			throws NotAutorizedException, InvalidParamsException, OtherRpcException, InvalidParamValueException {
 		try {
 			if (params == null || params.size() != 2) {
 				throw new InvalidParamsException("Either no or not enough params given.");
@@ -219,7 +219,7 @@ public class AccountModule {
 			int custID = cust.getInt(cust.findColumn("CustomerID"));
 			// Check if customer has delete permissions.
 			if (!SQLBankAccountService.isOwner(custID, iban)) {
-				throw new NotAuthenticatedException("You are not the owner of this bank account.");
+				throw new NotAutorizedException("You are not the owner of this bank account.");
 			}
 
 			SQLBankAccountService.removeBankAccount(iban);
